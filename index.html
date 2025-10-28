@@ -1015,6 +1015,9 @@
             const [editingCell, setEditingCell] = React.useState(null);
             const [collapsedGroups, setCollapsedGroups] = React.useState({
                 base: true,
+                projectManager: true,
+                groupManager: true,
+                teamLeader: true,
                 cp: true,
                 ip: true,
                 translator: true,
@@ -1224,12 +1227,12 @@
                             {/* CTW员工才显示部门 */}
                             {record.tag === 'ctw' && (
                                 <div className="info-item">
-                                    <span className="info-label">部门:</span>
+                                    <span className="info-label">department:</span>
                                     <span className="info-value">{record.department}</span>
                                 </div>
                             )}
                             <div className="info-item">
-                                <span className="info-label">职位:</span>
+                                <span className="info-label">position:</span>
                                 <Select
                                     size="small"
                                     value={record.position}
@@ -1245,7 +1248,7 @@
                                 </Select>
                             </div>
                             <div className="info-item">
-                                <span className="info-label">项目:</span>
+                                <span className="info-label">project:</span>
                                 <Select
                                     mode="multiple"
                                     size="small"
@@ -1272,7 +1275,7 @@
                             {record.tag === 'ctw' && (
                                 <>
                                     <div className="info-item">
-                                        <span className="info-label">组:</span>
+                                        <span className="info-label">group:</span>
                                         <Select
                                             mode="multiple"
                                             size="small"
@@ -1290,7 +1293,7 @@
                                         </Select>
                                     </div>
                                     <div className="info-item">
-                                        <span className="info-label">小队:</span>
+                                        <span className="info-label">team:</span>
                                         <Select
                                             mode="multiple"
                                             size="small"
@@ -1315,9 +1318,7 @@
             const baseRoleColumns = [
                 { title: 'CEO', dataIndex: 'ceo', key: 'ceo', width: 80 },
                 { title: 'Executive', dataIndex: 'executive', key: 'executive', width: 100 },
-                { title: 'Dept Manager', dataIndex: 'deptManager', key: 'deptManager', width: 120 },
-                { title: 'Group Manager', dataIndex: 'groupManager', key: 'groupManager', width: 130 },
-                { title: 'Team Leader', dataIndex: 'teamLeader', key: 'teamLeader', width: 110 },
+                { title: 'department Manager', dataIndex: 'deptManager', key: 'deptManager', width: 150 },
                 { title: 'Interviewer', dataIndex: 'interviewer', key: 'interviewer', width: 100 },
                 { title: 'Global HR', dataIndex: 'globalHR', key: 'globalHR', width: 100 },
                 { title: 'HR', dataIndex: 'hr', key: 'hr', width: 80 },
@@ -1332,6 +1333,122 @@
                         onChange={(checked) => handlePermissionChange(record.key, col.dataIndex, checked)}
                     />
                 ),
+            }));
+
+            // 动态生成Project Manager列（根据员工的project生成）
+            const createProjectManagerColumns = (employee) => {
+                if (!employee.project || employee.project.length === 0) return [];
+                return employee.project.map(proj => ({
+                    title: proj,
+                    key: `projectManager_${proj}`,
+                    dataIndex: `projectManager_${proj}`,
+                    width: 100,
+                    align: 'center',
+                    className: 'role-column',
+                }));
+            };
+
+            // 动态生成Group Manager列（根据员工的group生成）
+            const createGroupManagerColumns = (employee) => {
+                if (!employee.group || employee.group.length === 0) return [];
+                return employee.group.map(grp => ({
+                    title: grp,
+                    key: `groupManager_${grp}`,
+                    dataIndex: `groupManager_${grp}`,
+                    width: 110,
+                    align: 'center',
+                    className: 'role-column',
+                }));
+            };
+
+            // 动态生成Team Leader列（根据员工的team生成）
+            const createTeamLeaderColumns = (employee) => {
+                if (!employee.team || employee.team.length === 0) return [];
+                return employee.team.map(tm => ({
+                    title: tm,
+                    key: `teamLeader_${tm}`,
+                    dataIndex: `teamLeader_${tm}`,
+                    width: 100,
+                    align: 'center',
+                    className: 'role-column',
+                }));
+            };
+
+            // 收集所有唯一的project/group/team用于生成列
+            const allProjects = [...new Set(employees.flatMap(e => e.project || []))].sort();
+            const allGroups = [...new Set(employees.flatMap(e => e.group || []))].sort();
+            const allTeams = [...new Set(employees.flatMap(e => e.team || []))].sort();
+
+            // 生成Project Manager列组
+            const projectManagerColumns = allProjects.map(proj => ({
+                title: proj,
+                key: `projectManager_${proj}`,
+                width: 100,
+                align: 'center',
+                className: 'role-column',
+                render: (_, record) => {
+                    // 只有拥有该project的员工才显示开关
+                    if (!record.project || !record.project.includes(proj)) {
+                        return <span style={{ color: '#ccc' }}>-</span>;
+                    }
+                    const dataIndex = `projectManager_${proj}`;
+                    const value = record[dataIndex] || false;
+                    return (
+                        <Switch 
+                            checked={value} 
+                            size="small"
+                            onChange={(checked) => handlePermissionChange(record.key, dataIndex, checked)}
+                        />
+                    );
+                },
+            }));
+
+            // 生成Group Manager列组
+            const groupManagerColumns = allGroups.map(grp => ({
+                title: grp,
+                key: `groupManager_${grp}`,
+                width: 110,
+                align: 'center',
+                className: 'role-column',
+                render: (_, record) => {
+                    // 只有拥有该group的员工才显示开关
+                    if (!record.group || !record.group.includes(grp)) {
+                        return <span style={{ color: '#ccc' }}>-</span>;
+                    }
+                    const dataIndex = `groupManager_${grp}`;
+                    const value = record[dataIndex] || false;
+                    return (
+                        <Switch 
+                            checked={value} 
+                            size="small"
+                            onChange={(checked) => handlePermissionChange(record.key, dataIndex, checked)}
+                        />
+                    );
+                },
+            }));
+
+            // 生成Team Leader列组
+            const teamLeaderColumns = allTeams.map(tm => ({
+                title: tm,
+                key: `teamLeader_${tm}`,
+                width: 100,
+                align: 'center',
+                className: 'role-column',
+                render: (_, record) => {
+                    // 只有拥有该team的员工才显示开关
+                    if (!record.team || !record.team.includes(tm)) {
+                        return <span style={{ color: '#ccc' }}>-</span>;
+                    }
+                    const dataIndex = `teamLeader_${tm}`;
+                    const value = record[dataIndex] || false;
+                    return (
+                        <Switch 
+                            checked={value} 
+                            size="small"
+                            onChange={(checked) => handlePermissionChange(record.key, dataIndex, checked)}
+                        />
+                    );
+                },
             }));
 
             // CP角色列（带说明 - 问号图标）
@@ -1552,6 +1669,12 @@
                 displayColumns = [
                     ...baseColumns,
                     ...createGroupColumns('基础角色', baseRoleColumns, 'base'),
+                    // 新增Project Manager（每个project一列）
+                    ...(projectManagerColumns.length > 0 ? createGroupColumns('Project Manager', projectManagerColumns, 'projectManager') : []),
+                    // 新增Group Manager（每个group一列）
+                    ...(groupManagerColumns.length > 0 ? createGroupColumns('Group Manager', groupManagerColumns, 'groupManager') : []),
+                    // 新增Team Leader（每个team一列）
+                    ...(teamLeaderColumns.length > 0 ? createGroupColumns('Team Leader', teamLeaderColumns, 'teamLeader') : []),
                     ...createGroupColumns('CP角色', cpRoleColumns, 'cp'),
                     ...createGroupColumns('IP角色', ipRoleColumns, 'ip'),
                     ...createGroupColumns('翻译官', translatorRoleColumns, 'translator'),
