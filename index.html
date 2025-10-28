@@ -717,6 +717,7 @@
                 email: 'zhang.w@cp.com',
                 department: 'CP部门',
                 position: 'admin',
+                subPosition: 'ui',
                 project: ['Publisher', 'arifure'],
                 group: ['cloud', 'crafters'],
                 team: ['3AWE'],
@@ -768,6 +769,7 @@
                 email: 'li.m@cp.com',
                 department: 'CP部门',
                 position: 'qa',
+                subPosition: 'icon',
                 project: ['arifure', 'vividarmy'],
                 group: ['crafters', 'performance'],
                 team: ['AI'],
@@ -819,6 +821,7 @@
                 email: 'wang.f@cp.com',
                 department: 'CP部门',
                 position: 'be',
+                subPosition: 'banner',
                 project: ['kumo', 'negima'],
                 group: ['performance', 'illust5'],
                 team: ['3AWE'],
@@ -1008,6 +1011,7 @@
             const [searchColor, setSearchColor] = React.useState('');
             const [filterType, setFilterType] = React.useState('');
             const [filterPosition, setFilterPosition] = React.useState('');
+            const [filterSubPosition, setFilterSubPosition] = React.useState('');
             const [filterDept, setFilterDept] = React.useState('');
             const [filterProject, setFilterProject] = React.useState('');
             const [filterGroup, setFilterGroup] = React.useState('');
@@ -1244,6 +1248,27 @@
                                     <Option value="UI">UI</Option>
                                 </Select>
                             </div>
+                            {/* CP员工才显示sub position */}
+                            {record.tag === 'cp' && (
+                                <div className="info-item">
+                                    <span className="info-label">sub position:</span>
+                                    <Select
+                                        size="small"
+                                        value={record.subPosition}
+                                        style={{ width: 120 }}
+                                        onChange={(value) => handleInfoEdit(record.key, 'subPosition', value)}
+                                    >
+                                        <Option value="background">background</Option>
+                                        <Option value="banner">banner</Option>
+                                        <Option value="icon">icon</Option>
+                                        <Option value="illust">illust</Option>
+                                        <Option value="motion">motion</Option>
+                                        <Option value="sd">sd</Option>
+                                        <Option value="ui">ui</Option>
+                                        <Option value="video">video</Option>
+                                    </Select>
+                                </div>
+                            )}
                             <div className="info-item">
                                 <span className="info-label">project:</span>
                                 <Select
@@ -1751,6 +1776,7 @@
             // 从数据中提取筛选选项
             const employeeTypes = [...new Set(employees.map(e => e.tag))].sort();
             const positions = [...new Set(employees.map(e => e.position))].sort();
+            const subPositions = [...new Set(employees.filter(e => e.tag === 'cp' && e.subPosition).map(e => e.subPosition))].sort();
             const departments = [...new Set(employees.filter(e => e.tag === 'ctw').map(e => e.department))].sort();
             const projects = [...new Set(employees.flatMap(e => e.project))].filter(p => p).sort();
             const groups = [...new Set(employees.flatMap(e => e.group))].filter(g => g).sort();
@@ -1765,6 +1791,7 @@
                 if (searchName && !emp.name.toLowerCase().includes(searchName.toLowerCase())) return false;
                 if (filterType && emp.tag !== filterType) return false;
                 if (filterPosition && emp.position !== filterPosition) return false;
+                if (filterSubPosition && emp.subPosition !== filterSubPosition) return false;
                 if (filterDept && emp.department !== filterDept) return false;
                 if (filterProject && !emp.project.includes(filterProject)) return false;
                 if (filterGroup && !emp.group.includes(filterGroup)) return false;
@@ -1906,6 +1933,20 @@
                                                 <Option key={pos} value={pos}>{pos}</Option>
                                             ))}
                                         </Select>
+                                        {/* Sub Position筛选（只显示有CP员工时） */}
+                                        {subPositions.length > 0 && (
+                                            <Select
+                                                placeholder="sub position"
+                                                style={{ width: 150 }}
+                                                allowClear
+                                                value={filterSubPosition || undefined}
+                                                onChange={setFilterSubPosition}
+                                            >
+                                                {subPositions.map(subPos => (
+                                                    <Option key={subPos} value={subPos}>{subPos}</Option>
+                                                ))}
+                                            </Select>
+                                        )}
                                         {/* 全部视图才显示部门筛选 */}
                                         {viewMode === 'all' && (
                                             <Select
@@ -2056,6 +2097,25 @@
                                         <Option value="UI">UI</Option>
                                     </Select>
                                 </Form.Item>
+
+                                {/* CP员工才显示sub position */}
+                                {(viewMode === 'cp' || addForm.getFieldValue('employeeType') === 'cp') && (
+                                    <Form.Item
+                                        label="sub position"
+                                        name="subPosition"
+                                    >
+                                        <Select placeholder="sub position">
+                                            <Option value="background">background</Option>
+                                            <Option value="banner">banner</Option>
+                                            <Option value="icon">icon</Option>
+                                            <Option value="illust">illust</Option>
+                                            <Option value="motion">motion</Option>
+                                            <Option value="sd">sd</Option>
+                                            <Option value="ui">ui</Option>
+                                            <Option value="video">video</Option>
+                                        </Select>
+                                    </Form.Item>
+                                )}
 
                                 <Form.Item
                                     label="语言"
