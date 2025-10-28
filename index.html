@@ -1269,30 +1269,6 @@
                                     </Select>
                                 </div>
                             )}
-                            <div className="info-item">
-                                <span className="info-label">project:</span>
-                                <Select
-                                    mode="multiple"
-                                    size="small"
-                                    value={record.project}
-                                    style={{ width: 150 }}
-                                    onChange={(value) => handleInfoEdit(record.key, 'project', value)}
-                                    maxTagCount="responsive"
-                                    placeholder="选择项目"
-                                >
-                                    <Option value="A">A</Option>
-                                    <Option value="B">B</Option>
-                                    <Option value="CS">CS</Option>
-                                    <Option value="E">E</Option>
-                                    <Option value="P">P</Option>
-                                    <Option value="Publisher">Publisher</Option>
-                                    <Option value="arifure">arifure</Option>
-                                    <Option value="vividarmy">vividarmy</Option>
-                                    <Option value="kumo">kumo</Option>
-                                    <Option value="negima">negima</Option>
-                                    <Option value="dragon">dragon</Option>
-                                </Select>
-                            </div>
                             {/* CTW员工才显示组和小队 */}
                             {record.tag === 'ctw' && (
                                 <>
@@ -1331,6 +1307,30 @@
                                     </div>
                                 </>
                             )}
+                            <div className="info-item">
+                                <span className="info-label">project:</span>
+                                <Select
+                                    mode="multiple"
+                                    size="small"
+                                    value={record.project}
+                                    style={{ width: 150 }}
+                                    onChange={(value) => handleInfoEdit(record.key, 'project', value)}
+                                    maxTagCount="responsive"
+                                    placeholder="选择项目"
+                                >
+                                    <Option value="A">A</Option>
+                                    <Option value="B">B</Option>
+                                    <Option value="CS">CS</Option>
+                                    <Option value="E">E</Option>
+                                    <Option value="P">P</Option>
+                                    <Option value="Publisher">Publisher</Option>
+                                    <Option value="arifure">arifure</Option>
+                                    <Option value="vividarmy">vividarmy</Option>
+                                    <Option value="kumo">kumo</Option>
+                                    <Option value="negima">negima</Option>
+                                    <Option value="dragon">dragon</Option>
+                                </Select>
+                            </div>
                         </div>
                     ),
                 },
@@ -1902,7 +1902,7 @@
                                     {/* 搜索栏 */}
                                     <div className="search-bar">
                                         <Input
-                                            placeholder="姓名"
+                                            placeholder="name"
                                             prefix={<SearchOutlined />}
                                             style={{ width: 200 }}
                                             value={searchName}
@@ -1911,7 +1911,7 @@
                                         {/* 全部视图才显示员工类型筛选 */}
                                         {viewMode === 'all' && (
                                             <Select
-                                                placeholder="员工类型"
+                                                placeholder="employee type"
                                                 style={{ width: 150 }}
                                                 allowClear
                                                 value={filterType || undefined}
@@ -1923,7 +1923,7 @@
                                             </Select>
                                         )}
                                         <Select
-                                            placeholder="职位"
+                                            placeholder="position"
                                             style={{ width: 150 }}
                                             allowClear
                                             value={filterPosition || undefined}
@@ -1950,7 +1950,7 @@
                                         {/* 全部视图才显示部门筛选 */}
                                         {viewMode === 'all' && (
                                             <Select
-                                                placeholder="部门"
+                                                placeholder="department"
                                                 style={{ width: 150 }}
                                                 allowClear
                                                 value={filterDept || undefined}
@@ -1962,7 +1962,7 @@
                                             </Select>
                                         )}
                                         <Select
-                                            placeholder="项目"
+                                            placeholder="project"
                                             style={{ width: 150 }}
                                             allowClear
                                             value={filterProject || undefined}
@@ -1975,7 +1975,7 @@
                                         {/* 全部视图才显示组筛选 */}
                                         {viewMode === 'all' && (
                                             <Select
-                                                placeholder="组"
+                                                placeholder="group"
                                                 style={{ width: 150 }}
                                                 allowClear
                                                 value={filterGroup || undefined}
