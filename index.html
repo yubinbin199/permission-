@@ -1316,30 +1316,6 @@
             const allGroups = [...new Set(employees.flatMap(e => e.group || []))].sort();
             const allTeams = [...new Set(employees.flatMap(e => e.team || []))].sort();
 
-            // 生成Project Leader子列
-            const projectLeaderChildren = allProjects.map(proj => ({
-                title: proj,
-                key: `projectManager_${proj}`,
-                width: 100,
-                align: 'center',
-                className: 'role-column',
-                render: (_, record) => {
-                    // 只有拥有该project的员工才显示开关
-                    if (!record.project || !record.project.includes(proj)) {
-                        return <span style={{ color: '#ccc' }}>-</span>;
-                    }
-                    const dataIndex = `projectManager_${proj}`;
-                    const value = record[dataIndex] || false;
-                    return (
-                        <Switch 
-                            checked={value} 
-                            size="small"
-                            onChange={(checked) => handlePermissionChange(record.key, dataIndex, checked)}
-                        />
-                    );
-                },
-            }));
-
             // 生成Group Manager子列
             const groupManagerChildren = allGroups.map(grp => ({
                 title: grp,
@@ -1480,13 +1456,6 @@
                         />
                     ),
                 },
-                // Project Leader（带子列）
-                {
-                    title: 'project leader',
-                    key: 'projectLeader',
-                    align: 'center',
-                    children: projectLeaderChildren,
-                },
                 // Group Manager（带子列）
                 {
                     title: 'group manager',
@@ -1500,6 +1469,39 @@
                     key: 'teamLeader',
                     align: 'center',
                     children: teamLeaderChildren,
+                },
+                // Project Leader（单列，垂直显示员工的所有project开关）
+                {
+                    title: 'project leader',
+                    key: 'projectLeader',
+                    width: 150,
+                    align: 'center',
+                    className: 'role-column',
+                    render: (_, record) => {
+                        // 如果员工没有project，显示-
+                        if (!record.project || record.project.length === 0) {
+                            return <span style={{ color: '#ccc' }}>-</span>;
+                        }
+                        // 垂直显示员工的所有project开关
+                        return (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'center' }}>
+                                {record.project.map(proj => {
+                                    const dataIndex = `projectManager_${proj}`;
+                                    const value = record[dataIndex] || false;
+                                    return (
+                                        <div key={proj} style={{ display: 'flex', alignItems: 'center', gap: '6px', width: '100%', justifyContent: 'center' }}>
+                                            <span style={{ fontSize: '12px', minWidth: '60px', textAlign: 'left' }}>{proj}</span>
+                                            <Switch 
+                                                checked={value} 
+                                                size="small"
+                                                onChange={(checked) => handlePermissionChange(record.key, dataIndex, checked)}
+                                            />
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        );
+                    },
                 },
             ];
 
