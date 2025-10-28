@@ -1,0 +1,1926 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>P System - 权限管理</title>
+    <!-- Ant Design CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/antd@5.12.0/dist/reset.css">
+    <!-- React 和 ReactDOM -->
+    <script crossorigin src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.production.min.js"></script>
+    <script crossorigin src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+    <!-- Babel Standalone (用于JSX转换) -->
+    <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.23.0/babel.min.js"></script>
+    <!-- Ant Design JS -->
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1.11.10/dayjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/antd@5.12.0/dist/antd.min.js"></script>
+    <!-- Ant Design Icons -->
+    <script src="https://cdn.jsdelivr.net/npm/@ant-design/icons@5.2.6/dist/index.umd.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f5f5f5;
+        }
+
+        #root {
+            height: 100vh;
+        }
+
+        /* 自定义样式 */
+        .permission-layout {
+            height: 100vh;
+        }
+
+        .site-header {
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+            background: white;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            color: #1890ff;
+        }
+
+        .logo-icon {
+            font-size: 24px;
+        }
+
+        .header-right {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .site-layout-background {
+            background: white;
+            padding: 24px;
+            min-height: calc(100vh - 64px);
+        }
+
+        .page-header {
+            margin-bottom: 24px;
+        }
+
+        .page-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 16px;
+        }
+
+        .search-bar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        /* 员工信息列样式 */
+        .employee-cell {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .employee-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        .employee-info {
+            flex: 1;
+        }
+
+        .employee-name {
+            font-weight: 500;
+            color: #333;
+        }
+
+        .employee-tag {
+            display: inline-block;
+            padding: 2px 8px;
+            background: #e6f7ff;
+            color: #1890ff;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-left: 8px;
+        }
+
+        /* Information列样式 */
+        .info-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+        }
+
+        .info-label {
+            color: #999;
+            min-width: 45px;
+            flex-shrink: 0;
+        }
+
+        .info-value {
+            color: #333;
+        }
+
+        .info-tag {
+            padding: 2px 8px;
+            background: #f0f0f0;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        /* Info列中的Select样式 */
+        .info-item .ant-select {
+            flex: 1;
+        }
+
+        .info-item .ant-select-selector {
+            font-size: 12px !important;
+            min-height: 24px !important;
+            padding: 0 8px !important;
+        }
+
+        /* 单选Select */
+        .info-item .ant-select-single .ant-select-selector {
+            height: 24px !important;
+        }
+
+        .info-item .ant-select-selection-item {
+            line-height: 22px !important;
+        }
+
+        /* 多选Select样式 */
+        .info-item .ant-select-multiple .ant-select-selector {
+            padding: 2px 8px !important;
+        }
+
+        .info-item .ant-select-multiple .ant-select-selection-item {
+            height: 20px !important;
+            line-height: 18px !important;
+            font-size: 11px !important;
+            padding: 0 6px !important;
+            margin: 2px 2px 2px 0 !important;
+        }
+
+        .info-item .ant-select-multiple .ant-select-selection-placeholder {
+            line-height: 20px !important;
+        }
+
+        /* 角色分组标题 */
+        .role-group-header {
+            background: #fafafa;
+            padding: 8px 16px;
+            font-weight: 600;
+            color: #666;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .role-group-header:hover {
+            background: #f0f0f0;
+        }
+
+        /* 表格固定列样式优化 */
+        .ant-table-wrapper .ant-table-thead > tr > th {
+            background: #fafafa;
+            font-weight: 600;
+            color: #666;
+            border-right: 1px solid #f0f0f0 !important;
+        }
+
+        .ant-table-wrapper .ant-table-tbody > tr:hover > td {
+            background: #fafafa;
+        }
+
+        /* 修复折叠列和展开列混合时的边框问题 */
+        .ant-table-wrapper .ant-table-container table > thead > tr:first-child th {
+            border-bottom: 1px solid #f0f0f0 !important;
+        }
+
+        .ant-table-wrapper .ant-table-container table > thead > tr:last-child th {
+            border-bottom: 1px solid #f0f0f0 !important;
+        }
+
+        /* 确保所有表头单元格有统一的边框 */
+        .ant-table-wrapper .ant-table-thead th.ant-table-cell {
+            border-right: 1px solid #f0f0f0 !important;
+            vertical-align: middle !important;
+        }
+
+        /* 折叠列样式 */
+        .collapsed-column {
+            background: #f0f0f0 !important;
+            vertical-align: middle !important;
+        }
+
+        /* 折叠列的标题样式 */
+        .ant-table-wrapper .ant-table-thead > tr > th.collapsed-column .role-group-header {
+            background: transparent !important;
+        }
+
+        /* 折叠列内容单元格样式 */
+        .ant-table-wrapper .ant-table-tbody > tr > td.collapsed-column {
+            background: #fafafa !important;
+        }
+
+        /* Switch开关样式 */
+        .permission-switch {
+            margin: 0;
+        }
+
+        /* 可编辑单元格 */
+        .editable-cell {
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+
+        .editable-cell:hover {
+            background: #f0f0f0;
+        }
+
+        /* 表格容器 */
+        .table-container {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        /* 角色列标题样式 */
+        .role-column-header {
+            text-align: center;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        /* 紧凑模式下的表格 */
+        .ant-table-wrapper.compact-table .ant-table-thead > tr > th,
+        .ant-table-wrapper.compact-table .ant-table-tbody > tr > td {
+            padding: 8px 4px;
+        }
+
+        /* 修复表格边框对齐问题 */
+        .ant-table-wrapper .ant-table {
+            border-collapse: separate !important;
+            border-spacing: 0 !important;
+        }
+
+        .ant-table-wrapper .ant-table-thead > tr > th {
+            border-bottom: 1px solid #f0f0f0 !important;
+            border-right: 1px solid #f0f0f0 !important;
+        }
+
+        .ant-table-wrapper .ant-table-tbody > tr > td {
+            border-bottom: 1px solid #f0f0f0 !important;
+            border-right: 1px solid #f0f0f0 !important;
+        }
+
+        /* 确保折叠列标题单元格居中对齐 */
+        .ant-table-wrapper .ant-table-thead > tr > th.collapsed-column {
+            vertical-align: middle !important;
+            text-align: center !important;
+            padding: 16px 8px !important;
+            z-index: 1 !important;
+        }
+
+        /* 移除最后一列的右边框 */
+        .ant-table-wrapper .ant-table-thead > tr > th:last-child,
+        .ant-table-wrapper .ant-table-tbody > tr > td:last-child {
+            border-right: none !important;
+        }
+
+        /* 修复固定列的z-index层级问题 */
+        .ant-table-wrapper .ant-table-cell-fix-left,
+        .ant-table-wrapper .ant-table-cell-fix-right {
+            z-index: 2 !important;
+        }
+
+        .ant-table-wrapper .ant-table-thead .ant-table-cell-fix-left,
+        .ant-table-wrapper .ant-table-thead .ant-table-cell-fix-right {
+            z-index: 3 !important;
+        }
+
+        /* 确保折叠列不会覆盖其他列 */
+        .ant-table-wrapper .ant-table-thead > tr > th {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* 固定列在滚动时保持在最上层 */
+        .ant-table-wrapper .ant-table-ping-left .ant-table-cell-fix-left-last::after,
+        .ant-table-wrapper .ant-table-ping-right .ant-table-cell-fix-right-first::after {
+            box-shadow: none !important;
+        }
+
+        /* 表格容器 */
+        .table-container {
+            margin-bottom: 24px;
+            background: white;
+            border-radius: 8px;
+        }
+
+        /* Sider样式 */
+        .ant-layout-sider {
+            display: flex !important;
+            flex-direction: column !important;
+        }
+
+        .ant-layout-sider-children {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        /* Layout主容器高度 */
+        .permission-layout {
+            min-height: 100vh;
+        }
+
+        .permission-layout > .ant-layout {
+            min-height: calc(100vh - 64px);
+        }
+
+        /* 左侧用户信息区域 */
+        .sider-user-info {
+            margin-top: auto;
+            padding: 12px 16px;
+            border-top: 1px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: white;
+        }
+
+        /* 可编辑字段样式 */
+        .employee-name span[style*="cursor: pointer"]:hover,
+        .employee-info > div span[style*="cursor: pointer"]:hover {
+            background: #f0f0f0;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+
+        /* 表格包装器 */
+        .ant-table-wrapper {
+            background: white;
+        }
+
+        /* 表格内容区域底部边框 */
+        .ant-table-wrapper .ant-table-content {
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        /* 表格主体最后一行 */
+        .ant-table-wrapper .ant-table-tbody > tr:last-child > td {
+            border-bottom: none;
+        }
+
+        /* 分页器样式 */
+        .ant-table-wrapper .ant-table-pagination.ant-pagination {
+            margin: 16px;
+            padding: 0;
+        }
+
+        /* 加载动画 */
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #f5f5f5;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.3s ease;
+        }
+
+        #loading-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #e0e0e0;
+            border-top-color: #1890ff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            margin-top: 20px;
+            font-size: 16px;
+            color: #666;
+        }
+
+        /* 确保root容器初始不显示 */
+        #root {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        #root.loaded {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <!-- 加载动画 -->
+    <div id="loading-screen">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">加载中...</div>
+    </div>
+    
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { 
+            Layout, Menu, Input, Select, Button, Table, Switch, Tag, Avatar, 
+            Space, Dropdown, Badge, Tooltip, Modal, Form, message, Collapse 
+        } = antd;
+        const { 
+            UserOutlined, SettingOutlined, SearchOutlined, TeamOutlined,
+            SafetyOutlined, CaretRightOutlined, EditOutlined, CheckOutlined,
+            CloseOutlined, DownOutlined, MenuFoldOutlined, MenuUnfoldOutlined,
+            DollarOutlined, PlusOutlined
+        } = icons;
+        
+        const { Header, Sider, Content } = Layout;
+        const { Option } = Select;
+        const { Panel } = Collapse;
+
+        // 模拟员工数据
+        const initialEmployees = [
+            {
+                key: '1',
+                name: '佐々木龍一',
+                nameEn: 'Sasaki Ryuichi',
+                avatar: '佐',
+                tag: 'ctw',
+                g123id: 'GNS8GQHJ',
+                email: 'ceo@ctw.inc',
+                department: 'executive',
+                position: 'be',
+                project: ['A', 'B'],
+                group: ['cloud', 'crafters'],
+                team: ['3AWE'],
+                ceo: false,
+                executive: false,
+                deptManager: true,
+                groupManager: true,
+                teamLeader: false,
+                interviewer: true,
+                globalHR: false,
+                hr: false,
+                cpManager: false,
+                cpDev: false,
+                cpOperation: false,
+                cpMonitor: false,
+                aManager: false,
+                ipManager: false,
+                translatorEN: false,
+                translatorJA: false,
+                translatorKO: false,
+                translatorZHTW: false,
+                translatorOther: false,
+                techExpertEvaluator: false,
+                techExpertResponder: false,
+                creativeExpertEvaluator: false,
+                creativeExpertResponder: false,
+                marketingExpertEvaluator: false,
+                marketingExpertResponder: false,
+                operationExpertEvaluator: false,
+                operationExpertResponder: false,
+                managementExpertEvaluator: false,
+                managementExpertResponder: false,
+                cpExpertEvaluator: false,
+                cpExpertResponder: false,
+                executiveExpertEvaluator: false,
+                executiveExpertResponder: false,
+                csExpertEvaluator: false,
+                csExpertResponder: false,
+                i18nExpertEvaluator: false,
+                i18nExpertResponder: false,
+            },
+            {
+                key: '2',
+                name: '林铉夫',
+                nameEn: 'Lin Xuanfu',
+                avatar: '林',
+                tag: 'ctw',
+                g123id: 'AAWDWA123',
+                email: 'hayashi.m@ctw.inc',
+                department: 'tech',
+                position: 'fe',
+                project: ['P', 'CS'],
+                group: ['performance'],
+                team: ['AI'],
+                ceo: false,
+                executive: true,
+                deptManager: true,
+                groupManager: false,
+                teamLeader: false,
+                interviewer: false,
+                globalHR: false,
+                hr: false,
+                cpManager: false,
+                cpDev: false,
+                cpOperation: false,
+                cpMonitor: false,
+                aManager: false,
+                ipManager: false,
+                translatorEN: false,
+                translatorJA: false,
+                translatorKO: false,
+                translatorZHTW: false,
+                translatorOther: false,
+                techExpertEvaluator: false,
+                techExpertResponder: false,
+                creativeExpertEvaluator: false,
+                creativeExpertResponder: false,
+                marketingExpertEvaluator: false,
+                marketingExpertResponder: false,
+                operationExpertEvaluator: false,
+                operationExpertResponder: false,
+                managementExpertEvaluator: false,
+                managementExpertResponder: false,
+                cpExpertEvaluator: false,
+                cpExpertResponder: false,
+                executiveExpertEvaluator: false,
+                executiveExpertResponder: false,
+                csExpertEvaluator: false,
+                csExpertResponder: false,
+                i18nExpertEvaluator: false,
+                i18nExpertResponder: false,
+            },
+            {
+                key: '3',
+                name: '石渡章博',
+                nameEn: 'Ishiwata Akihiro',
+                avatar: '石',
+                tag: 'ctw',
+                g123id: 'GNRZO3R8',
+                email: 'ishiwata.a@ctw.inc',
+                department: 'operation',
+                position: 'pdm',
+                project: ['E', 'Publisher'],
+                group: ['illust5'],
+                team: [],
+                ceo: false,
+                executive: false,
+                deptManager: false,
+                groupManager: false,
+                teamLeader: false,
+                interviewer: true,
+                globalHR: false,
+                hr: false,
+                cpManager: false,
+                cpDev: false,
+                cpOperation: false,
+                cpMonitor: false,
+                aManager: false,
+                ipManager: false,
+                translatorEN: false,
+                translatorJA: false,
+                translatorKO: false,
+                translatorZHTW: false,
+                translatorOther: false,
+                techExpertEvaluator: false,
+                techExpertResponder: false,
+                creativeExpertEvaluator: false,
+                creativeExpertResponder: false,
+                marketingExpertEvaluator: false,
+                marketingExpertResponder: false,
+                operationExpertEvaluator: false,
+                operationExpertResponder: false,
+                managementExpertEvaluator: false,
+                managementExpertResponder: false,
+                cpExpertEvaluator: false,
+                cpExpertResponder: false,
+                executiveExpertEvaluator: false,
+                executiveExpertResponder: false,
+                csExpertEvaluator: false,
+                csExpertResponder: false,
+                i18nExpertEvaluator: false,
+                i18nExpertResponder: false,
+            },
+            {
+                key: '4',
+                name: '大友優衣子',
+                nameEn: 'Otomo Yuiko',
+                avatar: '大',
+                tag: 'ctw',
+                g123id: 'G2DQJY9|K',
+                email: 'otomo.y@ctw.inc',
+                department: 'marketing',
+                position: 'UI',
+                project: ['A', 'arifure'],
+                group: ['cloud', 'onlinegame'],
+                team: ['3AWE', 'AI'],
+                ceo: false,
+                executive: false,
+                deptManager: false,
+                groupManager: false,
+                teamLeader: false,
+                interviewer: true,
+                globalHR: false,
+                hr: false,
+                cpManager: false,
+                cpDev: false,
+                cpOperation: false,
+                cpMonitor: false,
+                aManager: false,
+                ipManager: false,
+                translatorEN: false,
+                translatorJA: false,
+                translatorKO: false,
+                translatorZHTW: false,
+                translatorOther: false,
+                techExpertEvaluator: false,
+                techExpertResponder: false,
+                creativeExpertEvaluator: false,
+                creativeExpertResponder: false,
+                marketingExpertEvaluator: false,
+                marketingExpertResponder: false,
+                operationExpertEvaluator: false,
+                operationExpertResponder: false,
+                managementExpertEvaluator: false,
+                managementExpertResponder: false,
+                cpExpertEvaluator: false,
+                cpExpertResponder: false,
+                executiveExpertEvaluator: false,
+                executiveExpertResponder: false,
+                csExpertEvaluator: false,
+                csExpertResponder: false,
+                i18nExpertEvaluator: false,
+                i18nExpertResponder: false,
+            },
+            // CP员工
+            {
+                key: '5',
+                name: '张伟',
+                nameEn: 'Zhang Wei',
+                avatar: '张',
+                tag: 'cp',
+                g123id: 'CPAA001',
+                email: 'zhang.w@cp.com',
+                department: 'CP部门',
+                position: 'admin',
+                project: ['Publisher', 'arifure'],
+                group: ['cloud', 'crafters'],
+                team: ['3AWE'],
+                ceo: false,
+                executive: false,
+                deptManager: false,
+                groupManager: false,
+                teamLeader: false,
+                interviewer: false,
+                globalHR: false,
+                hr: false,
+                cpManager: true,
+                cpDev: false,
+                cpOperation: false,
+                cpMonitor: false,
+                aManager: false,
+                ipManager: false,
+                translatorEN: false,
+                translatorJA: false,
+                translatorKO: false,
+                translatorZHTW: false,
+                translatorOther: false,
+                techExpertEvaluator: false,
+                techExpertResponder: false,
+                creativeExpertEvaluator: false,
+                creativeExpertResponder: false,
+                marketingExpertEvaluator: false,
+                marketingExpertResponder: false,
+                operationExpertEvaluator: false,
+                operationExpertResponder: false,
+                managementExpertEvaluator: false,
+                managementExpertResponder: false,
+                cpExpertEvaluator: false,
+                cpExpertResponder: false,
+                executiveExpertEvaluator: false,
+                executiveExpertResponder: false,
+                csExpertEvaluator: false,
+                csExpertResponder: false,
+                i18nExpertEvaluator: false,
+                i18nExpertResponder: false,
+            },
+            {
+                key: '6',
+                name: '李明',
+                nameEn: 'Li Ming',
+                avatar: '李',
+                tag: 'cp',
+                g123id: 'CPBB002',
+                email: 'li.m@cp.com',
+                department: 'CP部门',
+                position: 'qa',
+                project: ['arifure', 'vividarmy'],
+                group: ['crafters', 'performance'],
+                team: ['AI'],
+                ceo: false,
+                executive: false,
+                deptManager: false,
+                groupManager: false,
+                teamLeader: false,
+                interviewer: false,
+                globalHR: false,
+                hr: false,
+                cpManager: false,
+                cpDev: true,
+                cpOperation: false,
+                cpMonitor: false,
+                aManager: false,
+                ipManager: false,
+                translatorEN: false,
+                translatorJA: false,
+                translatorKO: false,
+                translatorZHTW: false,
+                translatorOther: false,
+                techExpertEvaluator: false,
+                techExpertResponder: false,
+                creativeExpertEvaluator: false,
+                creativeExpertResponder: false,
+                marketingExpertEvaluator: false,
+                marketingExpertResponder: false,
+                operationExpertEvaluator: false,
+                operationExpertResponder: false,
+                managementExpertEvaluator: false,
+                managementExpertResponder: false,
+                cpExpertEvaluator: false,
+                cpExpertResponder: false,
+                executiveExpertEvaluator: false,
+                executiveExpertResponder: false,
+                csExpertEvaluator: false,
+                csExpertResponder: false,
+                i18nExpertEvaluator: false,
+                i18nExpertResponder: false,
+            },
+            {
+                key: '7',
+                name: '王芳',
+                nameEn: 'Wang Fang',
+                avatar: '王',
+                tag: 'cp',
+                g123id: 'CPCC003',
+                email: 'wang.f@cp.com',
+                department: 'CP部门',
+                position: 'be',
+                project: ['kumo', 'negima'],
+                group: ['performance', 'illust5'],
+                team: ['3AWE'],
+                ceo: false,
+                executive: false,
+                deptManager: false,
+                groupManager: false,
+                teamLeader: false,
+                interviewer: false,
+                globalHR: false,
+                hr: false,
+                cpManager: false,
+                cpDev: false,
+                cpOperation: true,
+                cpMonitor: false,
+                aManager: false,
+                ipManager: false,
+                translatorEN: false,
+                translatorJA: false,
+                translatorKO: false,
+                translatorZHTW: false,
+                translatorOther: false,
+                techExpertEvaluator: false,
+                techExpertResponder: false,
+                creativeExpertEvaluator: false,
+                creativeExpertResponder: false,
+                marketingExpertEvaluator: false,
+                marketingExpertResponder: false,
+                operationExpertEvaluator: false,
+                operationExpertResponder: false,
+                managementExpertEvaluator: false,
+                managementExpertResponder: false,
+                cpExpertEvaluator: false,
+                cpExpertResponder: false,
+                executiveExpertEvaluator: false,
+                executiveExpertResponder: false,
+                csExpertEvaluator: false,
+                csExpertResponder: false,
+                i18nExpertEvaluator: false,
+                i18nExpertResponder: false,
+            },
+            // IP员工
+            {
+                key: '8',
+                name: '陈涛',
+                nameEn: 'Chen Tao',
+                avatar: '陈',
+                tag: 'ip',
+                g123id: 'IPAA001',
+                email: 'chen.t@ip.com',
+                department: 'IP部门',
+                position: 'admin',
+                project: ['vividarmy', 'dragon'],
+                group: ['illust5', 'onlinegame'],
+                team: ['3AWE', 'AI'],
+                ceo: false,
+                executive: false,
+                deptManager: false,
+                groupManager: false,
+                teamLeader: false,
+                interviewer: false,
+                globalHR: false,
+                hr: false,
+                cpManager: false,
+                cpDev: false,
+                cpOperation: false,
+                cpMonitor: false,
+                aManager: false,
+                ipManager: true,
+                techExpertEvaluator: false,
+                techExpertResponder: false,
+                creativeExpertEvaluator: false,
+                creativeExpertResponder: false,
+                marketingExpertEvaluator: false,
+                marketingExpertResponder: false,
+                operationExpertEvaluator: false,
+                operationExpertResponder: false,
+                managementExpertEvaluator: false,
+                managementExpertResponder: false,
+                cpExpertEvaluator: false,
+                cpExpertResponder: false,
+                executiveExpertEvaluator: false,
+                executiveExpertResponder: false,
+                csExpertEvaluator: false,
+                csExpertResponder: false,
+                i18nExpertEvaluator: false,
+                i18nExpertResponder: false,
+            },
+            {
+                key: '9',
+                name: '赵丽',
+                nameEn: 'Zhao Li',
+                avatar: '赵',
+                tag: 'ip',
+                g123id: 'IPBB002',
+                email: 'zhao.l@ip.com',
+                department: 'IP部门',
+                position: 'fe',
+                project: ['negima', 'dragon'],
+                group: ['onlinegame', 'cloud'],
+                team: ['AI'],
+                ceo: false,
+                executive: false,
+                deptManager: false,
+                groupManager: false,
+                teamLeader: false,
+                interviewer: false,
+                globalHR: false,
+                hr: false,
+                cpManager: false,
+                cpDev: false,
+                cpOperation: false,
+                cpMonitor: false,
+                aManager: false,
+                ipManager: true,
+                techExpertEvaluator: false,
+                techExpertResponder: false,
+                creativeExpertEvaluator: false,
+                creativeExpertResponder: false,
+                marketingExpertEvaluator: false,
+                marketingExpertResponder: false,
+                operationExpertEvaluator: false,
+                operationExpertResponder: false,
+                managementExpertEvaluator: false,
+                managementExpertResponder: false,
+                cpExpertEvaluator: false,
+                cpExpertResponder: false,
+                executiveExpertEvaluator: false,
+                executiveExpertResponder: false,
+                csExpertEvaluator: false,
+                csExpertResponder: false,
+                i18nExpertEvaluator: false,
+                i18nExpertResponder: false,
+            },
+            {
+                key: '10',
+                name: '刘强',
+                nameEn: 'Liu Qiang',
+                avatar: '刘',
+                tag: 'ip',
+                g123id: 'IPCC003',
+                email: 'liu.q@ip.com',
+                department: 'IP部门',
+                position: 'pdm',
+                project: ['dragon', 'Publisher'],
+                group: ['cloud', 'crafters'],
+                team: ['3AWE'],
+                ceo: false,
+                executive: false,
+                deptManager: false,
+                groupManager: false,
+                teamLeader: false,
+                interviewer: false,
+                globalHR: false,
+                hr: false,
+                cpManager: false,
+                cpDev: false,
+                cpOperation: false,
+                cpMonitor: false,
+                aManager: false,
+                ipManager: true,
+                techExpertEvaluator: false,
+                techExpertResponder: false,
+                creativeExpertEvaluator: false,
+                creativeExpertResponder: false,
+                marketingExpertEvaluator: false,
+                marketingExpertResponder: false,
+                operationExpertEvaluator: false,
+                operationExpertResponder: false,
+                managementExpertEvaluator: false,
+                managementExpertResponder: false,
+                cpExpertEvaluator: false,
+                cpExpertResponder: false,
+                executiveExpertEvaluator: false,
+                executiveExpertResponder: false,
+                csExpertEvaluator: false,
+                csExpertResponder: false,
+                i18nExpertEvaluator: false,
+                i18nExpertResponder: false,
+            },
+        ];
+
+        // 主组件
+        function PermissionManagement() {
+            const [employees, setEmployees] = React.useState(initialEmployees);
+            const [searchName, setSearchName] = React.useState('');
+            const [searchColor, setSearchColor] = React.useState('');
+            const [filterType, setFilterType] = React.useState('');
+            const [filterPosition, setFilterPosition] = React.useState('');
+            const [filterDept, setFilterDept] = React.useState('');
+            const [filterProject, setFilterProject] = React.useState('');
+            const [filterGroup, setFilterGroup] = React.useState('');
+            const [collapsed, setCollapsed] = React.useState(false);
+            const [editingCell, setEditingCell] = React.useState(null);
+            const [collapsedGroups, setCollapsedGroups] = React.useState({
+                base: true,
+                cp: true,
+                ip: true,
+                translator: true,
+                expert: true
+            });
+            const [isAddModalVisible, setIsAddModalVisible] = React.useState(false);
+            const [addForm] = Form.useForm();
+            const [viewMode, setViewMode] = React.useState('all'); // all, cp, ip
+            const [editingName, setEditingName] = React.useState(null);
+            const [editingG123id, setEditingG123id] = React.useState(null);
+
+            // 处理权限开关变更
+            const handlePermissionChange = (key, field, value) => {
+                setEmployees(prev => prev.map(emp => 
+                    emp.key === key ? { ...emp, [field]: value } : emp
+                ));
+                message.success('权限已更新');
+            };
+
+            // 处理信息字段编辑
+            const handleInfoEdit = (key, field, value) => {
+                setEmployees(prev => prev.map(emp => 
+                    emp.key === key ? { ...emp, [field]: value } : emp
+                ));
+                setEditingCell(null);
+                message.success('信息已更新');
+            };
+
+            // 处理添加员工
+            const handleAddEmployee = () => {
+                addForm.validateFields().then(values => {
+                    // 根据viewMode自动确定员工类型
+                    let employeeType = values.employeeType;
+                    if (viewMode === 'cp') {
+                        employeeType = 'cp';
+                    } else if (viewMode === 'ip') {
+                        employeeType = 'ip';
+                    }
+                    
+                    const newEmployee = {
+                        key: String(employees.length + 1),
+                        name: values.name,
+                        nameEn: values.nameEn,
+                        avatar: values.name.charAt(0),
+                        tag: employeeType,
+                        g123id: values.g123id,
+                        email: values.email,
+                        department: employeeType === 'ctw' ? '' : (employeeType === 'cp' ? 'CP部门' : 'IP部门'),
+                        position: values.position,
+                        project: [],
+                        group: [],
+                        team: [],
+                        ceo: false,
+                        executive: false,
+                        deptManager: false,
+                        groupManager: false,
+                        teamLeader: false,
+                        interviewer: false,
+                        globalHR: false,
+                        hr: false,
+                        cpManager: false,
+                        cpDev: false,
+                        cpOperation: false,
+                        cpMonitor: false,
+                        aManager: false,
+                        ipManager: false,
+                        translatorEN: false,
+                        translatorJA: false,
+                        translatorKO: false,
+                        translatorZHTW: false,
+                        translatorOther: false,
+                        techExpertEvaluator: false,
+                        techExpertResponder: false,
+                        creativeExpertEvaluator: false,
+                        creativeExpertResponder: false,
+                        marketingExpertEvaluator: false,
+                        marketingExpertResponder: false,
+                        operationExpertEvaluator: false,
+                        operationExpertResponder: false,
+                        managementExpertEvaluator: false,
+                        managementExpertResponder: false,
+                        cpExpertEvaluator: false,
+                        cpExpertResponder: false,
+                        executiveExpertEvaluator: false,
+                        executiveExpertResponder: false,
+                        csExpertEvaluator: false,
+                        csExpertResponder: false,
+                        i18nExpertEvaluator: false,
+                        i18nExpertResponder: false,
+                    };
+                    setEmployees(prev => [...prev, newEmployee]);
+                    message.success('添加员工成功！');
+                    setIsAddModalVisible(false);
+                    addForm.resetFields();
+                }).catch(info => {
+                    console.log('验证失败:', info);
+                });
+            };
+
+            // 切换角色组折叠状态
+            const toggleGroupCollapse = (groupName) => {
+                setCollapsedGroups(prev => ({
+                    ...prev,
+                    [groupName]: !prev[groupName]
+                }));
+            };
+
+            // 基础列定义
+            const baseColumns = [
+                {
+                    title: 'Employee',
+                    dataIndex: 'name',
+                    key: 'name',
+                    fixed: 'left',
+                    width: 240,
+                    render: (text, record) => {
+                        const isEditable = record.tag === 'cp' || record.tag === 'ip';
+                        const isEditingNameNow = editingName === record.key;
+                        const isEditingG123idNow = editingG123id === record.key;
+                        
+                        return (
+                            <div className="employee-cell">
+                                <div className="employee-avatar">{record.avatar}</div>
+                                <div className="employee-info">
+                                    <div className="employee-name">
+                                        {isEditable && isEditingNameNow ? (
+                                            <Input 
+                                                defaultValue={text}
+                                                size="small"
+                                                style={{ width: '120px' }}
+                                                onBlur={(e) => {
+                                                    const newName = e.target.value;
+                                                    if (newName && newName !== text) {
+                                                        setEmployees(prev => prev.map(emp => 
+                                                            emp.key === record.key ? { ...emp, name: newName, avatar: newName.charAt(0) } : emp
+                                                        ));
+                                                        message.success('名字已更新');
+                                                    }
+                                                    setEditingName(null);
+                                                }}
+                                                onPressEnter={(e) => e.target.blur()}
+                                                autoFocus
+                                            />
+                                        ) : (
+                                            <span 
+                                                onClick={() => isEditable && setEditingName(record.key)}
+                                                style={{ cursor: isEditable ? 'pointer' : 'default' }}
+                                            >
+                                                {text}
+                                            </span>
+                                        )}
+                                        <Tag 
+                                            color={
+                                                record.tag === 'ctw' ? 'blue' : 
+                                                record.tag === 'cp' ? 'green' : 
+                                                'orange'
+                                            }
+                                            style={{ marginLeft: '8px', fontSize: '11px' }}
+                                        >
+                                            {record.tag.toUpperCase()}
+                                        </Tag>
+                                    </div>
+                                    <div style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>
+                                        {record.email}
+                                    </div>
+                                    <div style={{ fontSize: '12px', color: '#999', marginTop: '2px' }}>
+                                        {isEditable && isEditingG123idNow ? (
+                                            <Input 
+                                                defaultValue={record.g123id}
+                                                size="small"
+                                                style={{ width: '180px' }}
+                                                placeholder="可通过 / 分隔输入多个id"
+                                                onBlur={(e) => {
+                                                    const newG123id = e.target.value;
+                                                    if (newG123id && newG123id !== record.g123id) {
+                                                        setEmployees(prev => prev.map(emp => 
+                                                            emp.key === record.key ? { ...emp, g123id: newG123id } : emp
+                                                        ));
+                                                        message.success('G123 ID已更新');
+                                                    }
+                                                    setEditingG123id(null);
+                                                }}
+                                                onPressEnter={(e) => e.target.blur()}
+                                                autoFocus
+                                            />
+                                        ) : (
+                                            <span 
+                                                onClick={() => isEditable && setEditingG123id(record.key)}
+                                                style={{ cursor: isEditable ? 'pointer' : 'default' }}
+                                            >
+                                                {record.g123id}
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    },
+                },
+                {
+                    title: 'Information',
+                    key: 'information',
+                    fixed: 'left',
+                    width: 280,
+                    render: (_, record) => (
+                        <div className="info-list">
+                            {/* CTW员工才显示部门 */}
+                            {record.tag === 'ctw' && (
+                                <div className="info-item">
+                                    <span className="info-label">部门:</span>
+                                    <span className="info-value">{record.department}</span>
+                                </div>
+                            )}
+                            <div className="info-item">
+                                <span className="info-label">职位:</span>
+                                <Select
+                                    size="small"
+                                    value={record.position}
+                                    style={{ width: 120 }}
+                                    onChange={(value) => handleInfoEdit(record.key, 'position', value)}
+                                >
+                                    <Option value="be">be</Option>
+                                    <Option value="fe">fe</Option>
+                                    <Option value="pdm">pdm</Option>
+                                    <Option value="admin">admin</Option>
+                                    <Option value="qa">qa</Option>
+                                    <Option value="UI">UI</Option>
+                                </Select>
+                            </div>
+                            <div className="info-item">
+                                <span className="info-label">项目:</span>
+                                <Select
+                                    mode="multiple"
+                                    size="small"
+                                    value={record.project}
+                                    style={{ width: 150 }}
+                                    onChange={(value) => handleInfoEdit(record.key, 'project', value)}
+                                    maxTagCount="responsive"
+                                    placeholder="选择项目"
+                                >
+                                    <Option value="A">A</Option>
+                                    <Option value="B">B</Option>
+                                    <Option value="CS">CS</Option>
+                                    <Option value="E">E</Option>
+                                    <Option value="P">P</Option>
+                                    <Option value="Publisher">Publisher</Option>
+                                    <Option value="arifure">arifure</Option>
+                                    <Option value="vividarmy">vividarmy</Option>
+                                    <Option value="kumo">kumo</Option>
+                                    <Option value="negima">negima</Option>
+                                    <Option value="dragon">dragon</Option>
+                                </Select>
+                            </div>
+                            {/* CTW员工才显示组和小队 */}
+                            {record.tag === 'ctw' && (
+                                <>
+                                    <div className="info-item">
+                                        <span className="info-label">组:</span>
+                                        <Select
+                                            mode="multiple"
+                                            size="small"
+                                            value={record.group}
+                                            style={{ width: 150 }}
+                                            onChange={(value) => handleInfoEdit(record.key, 'group', value)}
+                                            maxTagCount="responsive"
+                                            placeholder="选择组"
+                                        >
+                                            <Option value="cloud">cloud</Option>
+                                            <Option value="crafters">crafters</Option>
+                                            <Option value="performance">performance</Option>
+                                            <Option value="illust5">illust5</Option>
+                                            <Option value="onlinegame">onlinegame</Option>
+                                        </Select>
+                                    </div>
+                                    <div className="info-item">
+                                        <span className="info-label">小队:</span>
+                                        <Select
+                                            mode="multiple"
+                                            size="small"
+                                            value={record.team}
+                                            style={{ width: 120 }}
+                                            onChange={(value) => handleInfoEdit(record.key, 'team', value)}
+                                            maxTagCount="responsive"
+                                            placeholder="选择小队"
+                                        >
+                                            <Option value="3AWE">3AWE</Option>
+                                            <Option value="AI">AI</Option>
+                                        </Select>
+                                    </div>
+                                </>
+                            )}
+                        </div>
+                    ),
+                },
+            ];
+
+            // 基础角色列
+            const baseRoleColumns = [
+                { title: 'CEO', dataIndex: 'ceo', key: 'ceo', width: 80 },
+                { title: 'Executive', dataIndex: 'executive', key: 'executive', width: 100 },
+                { title: 'Dept Manager', dataIndex: 'deptManager', key: 'deptManager', width: 120 },
+                { title: 'Group Manager', dataIndex: 'groupManager', key: 'groupManager', width: 130 },
+                { title: 'Team Leader', dataIndex: 'teamLeader', key: 'teamLeader', width: 110 },
+                { title: 'Interviewer', dataIndex: 'interviewer', key: 'interviewer', width: 100 },
+                { title: 'Global HR', dataIndex: 'globalHR', key: 'globalHR', width: 100 },
+                { title: 'HR', dataIndex: 'hr', key: 'hr', width: 80 },
+            ].map(col => ({
+                ...col,
+                align: 'center',
+                className: 'role-column',
+                render: (value, record) => (
+                    <Switch 
+                        checked={value} 
+                        size="small"
+                        onChange={(checked) => handlePermissionChange(record.key, col.dataIndex, checked)}
+                    />
+                ),
+            }));
+
+            // CP角色列（带说明 - 问号图标）
+            const cpRoleColumns = [
+                { 
+                    title: 'CP Manager', 
+                    dataIndex: 'cpManager', 
+                    key: 'cpManager', 
+                    width: 110,
+                    tooltip: '管理CP内部员工，默认有publisher全部权限'
+                },
+                { 
+                    title: 'CP Dev', 
+                    dataIndex: 'cpDev', 
+                    key: 'cpDev', 
+                    width: 90,
+                    tooltip: '默认有publisher全部权限'
+                },
+                { 
+                    title: 'CP Operation', 
+                    dataIndex: 'cpOperation', 
+                    key: 'cpOperation', 
+                    width: 120,
+                    tooltip: '有publisher部分权限'
+                },
+                { 
+                    title: 'CP Monitor', 
+                    dataIndex: 'cpMonitor', 
+                    key: 'cpMonitor', 
+                    width: 110,
+                    tooltip: '有grafana权限'
+                },
+                { 
+                    title: 'A Manager', 
+                    dataIndex: 'aManager', 
+                    key: 'aManager', 
+                    width: 100,
+                    tooltip: '负责A系统bug接收'
+                },
+            ].map(col => ({
+                ...col,
+                align: 'center',
+                className: 'role-column',
+                title: (
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                        <span>{col.title}</span>
+                        <Tooltip title={col.tooltip} placement="top">
+                            <span style={{ 
+                                display: 'inline-flex', 
+                                alignItems: 'center', 
+                                justifyContent: 'center',
+                                width: '16px', 
+                                height: '16px', 
+                                borderRadius: '50%', 
+                                border: '1px solid #999',
+                                fontSize: '12px',
+                                color: '#999',
+                                cursor: 'help',
+                                lineHeight: '1'
+                            }}>
+                                ?
+                            </span>
+                        </Tooltip>
+                    </div>
+                ),
+                render: (value, record) => (
+                    <Switch 
+                        checked={value} 
+                        size="small"
+                        onChange={(checked) => handlePermissionChange(record.key, col.dataIndex, checked)}
+                    />
+                ),
+            }));
+
+            // IP角色列
+            const ipRoleColumns = [
+                { title: 'IP Manager', dataIndex: 'ipManager', key: 'ipManager', width: 100 },
+            ].map(col => ({
+                ...col,
+                align: 'center',
+                className: 'role-column',
+                render: (value, record) => (
+                    <Switch 
+                        checked={value} 
+                        size="small"
+                        onChange={(checked) => handlePermissionChange(record.key, col.dataIndex, checked)}
+                    />
+                ),
+            }));
+
+            // 翻译官角色列
+            const translatorRoleColumns = [
+                { title: 'EN', dataIndex: 'translatorEN', key: 'translatorEN', width: 80 },
+                { title: 'JA', dataIndex: 'translatorJA', key: 'translatorJA', width: 80 },
+                { title: 'KO', dataIndex: 'translatorKO', key: 'translatorKO', width: 80 },
+                { title: 'ZH-TW', dataIndex: 'translatorZHTW', key: 'translatorZHTW', width: 90 },
+                { title: 'Other', dataIndex: 'translatorOther', key: 'translatorOther', width: 90 },
+            ].map(col => ({
+                ...col,
+                align: 'center',
+                className: 'role-column',
+                render: (value, record) => (
+                    <Switch 
+                        checked={value} 
+                        size="small"
+                        onChange={(checked) => handlePermissionChange(record.key, col.dataIndex, checked)}
+                    />
+                ),
+            }));
+
+            // Expert角色列
+            const expertRoleColumns = [
+                { title: 'Tech Evaluator', dataIndex: 'techExpertEvaluator', key: 'techExpertEvaluator', width: 120 },
+                { title: 'Tech Responder', dataIndex: 'techExpertResponder', key: 'techExpertResponder', width: 120 },
+                { title: 'Creative Eval.', dataIndex: 'creativeExpertEvaluator', key: 'creativeExpertEvaluator', width: 120 },
+                { title: 'Creative Resp.', dataIndex: 'creativeExpertResponder', key: 'creativeExpertResponder', width: 120 },
+                { title: 'Marketing Eval.', dataIndex: 'marketingExpertEvaluator', key: 'marketingExpertEvaluator', width: 130 },
+                { title: 'Marketing Resp.', dataIndex: 'marketingExpertResponder', key: 'marketingExpertResponder', width: 130 },
+                { title: 'Operation Eval.', dataIndex: 'operationExpertEvaluator', key: 'operationExpertEvaluator', width: 130 },
+                { title: 'Operation Resp.', dataIndex: 'operationExpertResponder', key: 'operationExpertResponder', width: 130 },
+                { title: 'Management Eval.', dataIndex: 'managementExpertEvaluator', key: 'managementExpertEvaluator', width: 140 },
+                { title: 'Management Resp.', dataIndex: 'managementExpertResponder', key: 'managementExpertResponder', width: 140 },
+                { title: 'CP Eval.', dataIndex: 'cpExpertEvaluator', key: 'cpExpertEvaluator', width: 100 },
+                { title: 'CP Resp.', dataIndex: 'cpExpertResponder', key: 'cpExpertResponder', width: 100 },
+                { title: 'Executive Eval.', dataIndex: 'executiveExpertEvaluator', key: 'executiveExpertEvaluator', width: 130 },
+                { title: 'Executive Resp.', dataIndex: 'executiveExpertResponder', key: 'executiveExpertResponder', width: 130 },
+                { title: 'CS Eval.', dataIndex: 'csExpertEvaluator', key: 'csExpertEvaluator', width: 100 },
+                { title: 'CS Resp.', dataIndex: 'csExpertResponder', key: 'csExpertResponder', width: 100 },
+                { title: 'i18n Eval.', dataIndex: 'i18nExpertEvaluator', key: 'i18nExpertEvaluator', width: 100 },
+                { title: 'i18n Resp.', dataIndex: 'i18nExpertResponder', key: 'i18nExpertResponder', width: 100 },
+            ].map(col => ({
+                ...col,
+                align: 'center',
+                className: 'role-column',
+                render: (value, record) => (
+                    <Switch 
+                        checked={value} 
+                        size="small"
+                        onChange={(checked) => handlePermissionChange(record.key, col.dataIndex, checked)}
+                    />
+                ),
+            }));
+
+            // 创建分组列 - 修复折叠显示问题
+            const createGroupColumns = (title, columns, groupKey) => {
+                const isCollapsed = collapsedGroups[groupKey];
+                
+                // 如果折叠，返回一个占位列
+                if (isCollapsed) {
+                    return [
+                        {
+                            title: (
+                                <div 
+                                    className="role-group-header" 
+                                    onClick={() => toggleGroupCollapse(groupKey)}
+                                    style={{ 
+                                        minWidth: '150px',
+                                        padding: '12px 16px',
+                                        height: '100%',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        background: 'transparent'
+                                    }}
+                                >
+                                    <CaretRightOutlined style={{ marginRight: '8px' }} />
+                                    {title} ({columns.length})
+                                </div>
+                            ),
+                            key: `collapsed-${groupKey}`,
+                            dataIndex: `collapsed-${groupKey}`,
+                            width: 150,
+                            align: 'center',
+                            onHeaderCell: () => ({
+                                className: 'collapsed-column',
+                                style: {
+                                    verticalAlign: 'middle',
+                                    textAlign: 'center',
+                                    background: '#f0f0f0',
+                                }
+                            }),
+                            onCell: () => ({
+                                className: 'collapsed-column',
+                            }),
+                            render: () => (
+                                <span style={{ color: '#999', fontSize: '13px' }}>已折叠</span>
+                            ),
+                        }
+                    ];
+                }
+                
+                // 如果展开，返回带子列的分组
+                return [
+                    {
+                        title: (
+                            <div 
+                                className="role-group-header" 
+                                onClick={() => toggleGroupCollapse(groupKey)}
+                                style={{
+                                    padding: '8px 16px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center'
+                                }}
+                            >
+                                <DownOutlined style={{ marginRight: '8px' }} />
+                                {title} ({columns.length})
+                            </div>
+                        ),
+                        children: columns,
+                    }
+                ];
+            };
+
+            // 根据viewMode决定显示哪些列
+            let displayColumns = [];
+            if (viewMode === 'all') {
+                displayColumns = [
+                    ...baseColumns,
+                    ...createGroupColumns('基础角色', baseRoleColumns, 'base'),
+                    ...createGroupColumns('CP角色', cpRoleColumns, 'cp'),
+                    ...createGroupColumns('IP角色', ipRoleColumns, 'ip'),
+                    ...createGroupColumns('翻译官', translatorRoleColumns, 'translator'),
+                    ...createGroupColumns('Expert角色', expertRoleColumns, 'expert'),
+                ];
+            } else if (viewMode === 'cp') {
+                // CP视图：只显示CP角色列，不折叠
+                displayColumns = [
+                    ...baseColumns,
+                    ...cpRoleColumns.map(col => ({ ...col, align: 'center', className: 'role-column' })),
+                ];
+            } else if (viewMode === 'ip') {
+                // IP视图：只显示IP角色列，不折叠（不显示翻译官）
+                displayColumns = [
+                    ...baseColumns,
+                    ...ipRoleColumns.map(col => ({ ...col, align: 'center', className: 'role-column' })),
+                ];
+            }
+
+            // 从数据中提取筛选选项
+            const employeeTypes = [...new Set(employees.map(e => e.tag))].sort();
+            const positions = [...new Set(employees.map(e => e.position))].sort();
+            const departments = [...new Set(employees.filter(e => e.tag === 'ctw').map(e => e.department))].sort();
+            const projects = [...new Set(employees.flatMap(e => e.project))].filter(p => p).sort();
+            const groups = [...new Set(employees.flatMap(e => e.group))].filter(g => g).sort();
+
+            // 筛选数据 - 根据viewMode和其他筛选条件
+            const filteredData = employees.filter(emp => {
+                // 根据viewMode过滤员工类型
+                if (viewMode === 'cp' && emp.tag !== 'cp') return false;
+                if (viewMode === 'ip' && emp.tag !== 'ip') return false;
+                
+                // 其他筛选条件
+                if (searchName && !emp.name.toLowerCase().includes(searchName.toLowerCase())) return false;
+                if (filterType && emp.tag !== filterType) return false;
+                if (filterPosition && emp.position !== filterPosition) return false;
+                if (filterDept && emp.department !== filterDept) return false;
+                if (filterProject && !emp.project.includes(filterProject)) return false;
+                if (filterGroup && !emp.group.includes(filterGroup)) return false;
+                return true;
+            });
+
+            // 统计数据（已注释，不再显示统计卡片）
+            // const totalEmployees = employees.length;
+            // const activeRoles = employees.reduce((sum, emp) => {
+            //     return sum + Object.keys(emp).filter(key => 
+            //         key !== 'key' && key !== 'name' && key !== 'nameEn' && 
+            //         key !== 'avatar' && key !== 'tag' && key !== 'department' && 
+            //         key !== 'position' && key !== 'project' && key !== 'group' && 
+            //         key !== 'team' && emp[key] === true
+            //     ).length;
+            // }, 0);
+
+            return (
+                <Layout className="permission-layout">
+                    <Header className="site-header">
+                        <div className="logo">
+                            <SafetyOutlined className="logo-icon" />
+                            <span>P System</span>
+                        </div>
+                        <div className="header-right">
+                            <Select
+                                defaultValue="cny"
+                                style={{ width: 150 }}
+                                suffixIcon={<DollarOutlined />}
+                            >
+                                <Option value="cny">💲 元/月</Option>
+                                <Option value="usd">$ USD/月</Option>
+                                <Option value="jpy">¥ JPY/月</Option>
+                            </Select>
+                        </div>
+                    </Header>
+
+                    <Layout>
+                        <Sider 
+                            width={200} 
+                            theme="light"
+                            style={{ display: 'flex', flexDirection: 'column' }}
+                        >
+                            <Menu
+                                mode="inline"
+                                defaultSelectedKeys={['permission']}
+                                style={{ flex: 1, borderRight: 0 }}
+                                items={[
+                                    {
+                                        key: 'settings',
+                                        icon: <SettingOutlined />,
+                                        label: '设置',
+                                        children: [
+                                            { key: 'aot', label: 'AOT设置' },
+                                            { key: 'module', label: '模版管理' },
+                                            { key: 'permission', label: '权限管理' },
+                                            { key: 'role', label: '角色管理' },
+                                        ],
+                                    },
+                                ]}
+                            />
+                            {/* 视图切换按钮 */}
+                            <div style={{ 
+                                padding: '12px 16px',
+                                borderTop: '1px solid #f0f0f0',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: '8px'
+                            }}>
+                                <Button 
+                                    block
+                                    type={viewMode === 'cp' ? 'primary' : 'default'}
+                                    size="small"
+                                    onClick={() => setViewMode('cp')}
+                                >
+                                    切换CP角色
+                                </Button>
+                                <Button 
+                                    block
+                                    type={viewMode === 'ip' ? 'primary' : 'default'}
+                                    size="small"
+                                    onClick={() => setViewMode('ip')}
+                                >
+                                    切换IP角色
+                                </Button>
+                                {viewMode !== 'all' && (
+                                    <Button 
+                                        block
+                                        size="small"
+                                        onClick={() => setViewMode('all')}
+                                    >
+                                        返回全部
+                                    </Button>
+                                )}
+                            </div>
+                            {/* 底部用户信息 */}
+                            <div className="sider-user-info">
+                                <Avatar size="small" icon={<UserOutlined />} />
+                                <span style={{ fontSize: '12px' }}>yu.bin@ctw.inc</span>
+                            </div>
+                        </Sider>
+
+                        <Layout style={{ padding: '0 24px 24px' }}>
+                            <Content className="site-layout-background">
+                                <div className="page-header">
+                                    <h1 className="page-title">权限管理</h1>
+
+                                    {/* 搜索栏 */}
+                                    <div className="search-bar">
+                                        <Input
+                                            placeholder="姓名"
+                                            prefix={<SearchOutlined />}
+                                            style={{ width: 200 }}
+                                            value={searchName}
+                                            onChange={(e) => setSearchName(e.target.value)}
+                                        />
+                                        {/* 全部视图才显示员工类型筛选 */}
+                                        {viewMode === 'all' && (
+                                            <Select
+                                                placeholder="员工类型"
+                                                style={{ width: 150 }}
+                                                allowClear
+                                                value={filterType || undefined}
+                                                onChange={setFilterType}
+                                            >
+                                                {employeeTypes.map(type => (
+                                                    <Option key={type} value={type}>{type.toUpperCase()}</Option>
+                                                ))}
+                                            </Select>
+                                        )}
+                                        <Select
+                                            placeholder="职位"
+                                            style={{ width: 150 }}
+                                            allowClear
+                                            value={filterPosition || undefined}
+                                            onChange={setFilterPosition}
+                                        >
+                                            {positions.map(pos => (
+                                                <Option key={pos} value={pos}>{pos}</Option>
+                                            ))}
+                                        </Select>
+                                        {/* 全部视图才显示部门筛选 */}
+                                        {viewMode === 'all' && (
+                                            <Select
+                                                placeholder="部门"
+                                                style={{ width: 150 }}
+                                                allowClear
+                                                value={filterDept || undefined}
+                                                onChange={setFilterDept}
+                                            >
+                                                {departments.map(dept => (
+                                                    <Option key={dept} value={dept}>{dept}</Option>
+                                                ))}
+                                            </Select>
+                                        )}
+                                        <Select
+                                            placeholder="项目"
+                                            style={{ width: 150 }}
+                                            allowClear
+                                            value={filterProject || undefined}
+                                            onChange={setFilterProject}
+                                        >
+                                            {projects.map(proj => (
+                                                <Option key={proj} value={proj}>{proj}</Option>
+                                            ))}
+                                        </Select>
+                                        {/* 全部视图才显示组筛选 */}
+                                        {viewMode === 'all' && (
+                                            <Select
+                                                placeholder="组"
+                                                style={{ width: 150 }}
+                                                allowClear
+                                                value={filterGroup || undefined}
+                                                onChange={setFilterGroup}
+                                            >
+                                                {groups.map(grp => (
+                                                    <Option key={grp} value={grp}>{grp}</Option>
+                                                ))}
+                                            </Select>
+                                        )}
+                                        <Button 
+                                            type="primary" 
+                                            icon={<PlusOutlined />}
+                                            onClick={() => setIsAddModalVisible(true)}
+                                        >
+                                            添加员工
+                                        </Button>
+                                    </div>
+                                </div>
+
+                                {/* 表格 */}
+                                <div className="table-container">
+                                    <Table
+                                        columns={displayColumns}
+                                        dataSource={filteredData}
+                                        scroll={{ x: 'max-content', y: 600 }}
+                                        pagination={{
+                                            pageSize: 20,
+                                            showSizeChanger: true,
+                                            showTotal: (total) => `共 ${total} 条`,
+                                        }}
+                                        size="middle"
+                                        bordered
+                                    />
+                                </div>
+                            </Content>
+                        </Layout>
+                    </Layout>
+
+                    {/* 添加员工Modal */}
+                    <Modal
+                        title="员工信息"
+                        open={isAddModalVisible}
+                        onOk={handleAddEmployee}
+                        onCancel={() => {
+                            setIsAddModalVisible(false);
+                            addForm.resetFields();
+                        }}
+                        okText="提交"
+                        cancelText="取消"
+                        width={800}
+                    >
+                        <Form
+                            form={addForm}
+                            layout="vertical"
+                        >
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                                {/* 全部视图才显示员工类型字段 */}
+                                {viewMode === 'all' && (
+                                    <Form.Item
+                                        label="员工类型"
+                                        name="employeeType"
+                                        rules={[{ required: true, message: '请选择员工类型' }]}
+                                    >
+                                        <Select placeholder="请选择">
+                                            <Option value="cp">CP</Option>
+                                            <Option value="ip">IP</Option>
+                                        </Select>
+                                    </Form.Item>
+                                )}
+
+                                <Form.Item
+                                    label="姓名"
+                                    name="name"
+                                    rules={[{ required: true, message: '请输入姓名' }]}
+                                    style={viewMode === 'all' ? {} : { gridColumn: '1' }}
+                                >
+                                    <Input placeholder="请输入" />
+                                </Form.Item>
+
+                                <Form.Item
+                                    label="姓名（拼音）"
+                                    name="nameEn"
+                                    rules={[{ required: true, message: '请输入姓名拼音' }]}
+                                >
+                                    <Input placeholder="请输入" />
+                                </Form.Item>
+
+                                <Form.Item
+                                    label="Email"
+                                    name="email"
+                                    rules={[
+                                        { required: true, message: '请输入邮箱' },
+                                        { type: 'email', message: '请输入有效的邮箱地址' }
+                                    ]}
+                                >
+                                    <Input placeholder="请输入/自动生成" suffix="@ctw.inc" />
+                                </Form.Item>
+
+                                <Form.Item
+                                    label="G123 ID（仅支持一次编辑）"
+                                    name="g123id"
+                                    rules={viewMode === 'all' ? [{ required: true, message: '请输入G123 ID' }] : []}
+                                >
+                                    <Input placeholder="可通过 / 分隔输入多个id" />
+                                </Form.Item>
+
+                                <Form.Item
+                                    label="职位"
+                                    name="position"
+                                    rules={viewMode === 'all' ? [{ required: true, message: '请选择职位' }] : []}
+                                >
+                                    <Select placeholder="职位">
+                                        <Option value="be">be</Option>
+                                        <Option value="fe">fe</Option>
+                                        <Option value="pdm">pdm</Option>
+                                        <Option value="admin">admin</Option>
+                                        <Option value="qa">qa</Option>
+                                        <Option value="UI">UI</Option>
+                                    </Select>
+                                </Form.Item>
+
+                                <Form.Item
+                                    label="语言"
+                                    name="language"
+                                >
+                                    <Select placeholder="中文" defaultValue="zh">
+                                        <Option value="zh">中文</Option>
+                                        <Option value="en">English</Option>
+                                        <Option value="ja">日本語</Option>
+                                    </Select>
+                                </Form.Item>
+                            </div>
+                        </Form>
+                    </Modal>
+                </Layout>
+            );
+        }
+
+        // 渲染应用
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<PermissionManagement />);
+
+        // 等待React渲染完成后隐藏加载屏幕
+        setTimeout(() => {
+            const loadingScreen = document.getElementById('loading-screen');
+            const rootElement = document.getElementById('root');
+            
+            if (loadingScreen && rootElement) {
+                // 显示主内容
+                rootElement.classList.add('loaded');
+                
+                // 隐藏加载屏幕
+                setTimeout(() => {
+                    loadingScreen.classList.add('hidden');
+                    // 完全移除加载屏幕
+                    setTimeout(() => {
+                        loadingScreen.remove();
+                    }, 300);
+                }, 100);
+            }
+        }, 500);
+    </script>
+</body>
+</html>
+
