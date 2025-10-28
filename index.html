@@ -1316,8 +1316,8 @@
             const allGroups = [...new Set(employees.flatMap(e => e.group || []))].sort();
             const allTeams = [...new Set(employees.flatMap(e => e.team || []))].sort();
 
-            // 生成Project Manager列（每个project一列）
-            const projectManagerColumns = allProjects.map(proj => ({
+            // 生成Project Leader子列
+            const projectLeaderChildren = allProjects.map(proj => ({
                 title: proj,
                 key: `projectManager_${proj}`,
                 width: 100,
@@ -1340,8 +1340,8 @@
                 },
             }));
 
-            // 生成Group Manager列（每个group一列）
-            const groupManagerColumns = allGroups.map(grp => ({
+            // 生成Group Manager子列
+            const groupManagerChildren = allGroups.map(grp => ({
                 title: grp,
                 key: `groupManager_${grp}`,
                 width: 110,
@@ -1364,8 +1364,8 @@
                 },
             }));
 
-            // 生成Team Leader列（每个team一列）
-            const teamLeaderColumns = allTeams.map(tm => ({
+            // 生成Team Leader子列
+            const teamLeaderChildren = allTeams.map(tm => ({
                 title: tm,
                 key: `teamLeader_${tm}`,
                 width: 100,
@@ -1388,26 +1388,120 @@
                 },
             }));
 
-            // 基础角色列（包含固定角色 + 动态的project/group/team manager）
+            // 基础角色列（包含固定角色 + 嵌套的project/group/team leader）
             const baseRoleColumns = [
-                { title: 'CEO', dataIndex: 'ceo', key: 'ceo', width: 80 },
-                { title: 'Executive', dataIndex: 'executive', key: 'executive', width: 100 },
-                { title: 'department Manager', dataIndex: 'deptManager', key: 'deptManager', width: 150 },
-                { title: 'Interviewer', dataIndex: 'interviewer', key: 'interviewer', width: 100 },
-                { title: 'Global HR', dataIndex: 'globalHR', key: 'globalHR', width: 100 },
-                { title: 'HR', dataIndex: 'hr', key: 'hr', width: 80 },
-            ].map(col => ({
-                ...col,
-                align: 'center',
-                className: 'role-column',
-                render: (value, record) => (
-                    <Switch 
-                        checked={value} 
-                        size="small"
-                        onChange={(checked) => handlePermissionChange(record.key, col.dataIndex, checked)}
-                    />
-                ),
-            })).concat(projectManagerColumns, groupManagerColumns, teamLeaderColumns);
+                { 
+                    title: 'CEO', 
+                    dataIndex: 'ceo', 
+                    key: 'ceo', 
+                    width: 80,
+                    align: 'center',
+                    className: 'role-column',
+                    render: (value, record) => (
+                        <Switch 
+                            checked={value} 
+                            size="small"
+                            onChange={(checked) => handlePermissionChange(record.key, 'ceo', checked)}
+                        />
+                    ),
+                },
+                { 
+                    title: 'Executive', 
+                    dataIndex: 'executive', 
+                    key: 'executive', 
+                    width: 100,
+                    align: 'center',
+                    className: 'role-column',
+                    render: (value, record) => (
+                        <Switch 
+                            checked={value} 
+                            size="small"
+                            onChange={(checked) => handlePermissionChange(record.key, 'executive', checked)}
+                        />
+                    ),
+                },
+                { 
+                    title: 'department Manager', 
+                    dataIndex: 'deptManager', 
+                    key: 'deptManager', 
+                    width: 150,
+                    align: 'center',
+                    className: 'role-column',
+                    render: (value, record) => (
+                        <Switch 
+                            checked={value} 
+                            size="small"
+                            onChange={(checked) => handlePermissionChange(record.key, 'deptManager', checked)}
+                        />
+                    ),
+                },
+                { 
+                    title: 'Interviewer', 
+                    dataIndex: 'interviewer', 
+                    key: 'interviewer', 
+                    width: 100,
+                    align: 'center',
+                    className: 'role-column',
+                    render: (value, record) => (
+                        <Switch 
+                            checked={value} 
+                            size="small"
+                            onChange={(checked) => handlePermissionChange(record.key, 'interviewer', checked)}
+                        />
+                    ),
+                },
+                { 
+                    title: 'Global HR', 
+                    dataIndex: 'globalHR', 
+                    key: 'globalHR', 
+                    width: 100,
+                    align: 'center',
+                    className: 'role-column',
+                    render: (value, record) => (
+                        <Switch 
+                            checked={value} 
+                            size="small"
+                            onChange={(checked) => handlePermissionChange(record.key, 'globalHR', checked)}
+                        />
+                    ),
+                },
+                { 
+                    title: 'HR', 
+                    dataIndex: 'hr', 
+                    key: 'hr', 
+                    width: 80,
+                    align: 'center',
+                    className: 'role-column',
+                    render: (value, record) => (
+                        <Switch 
+                            checked={value} 
+                            size="small"
+                            onChange={(checked) => handlePermissionChange(record.key, 'hr', checked)}
+                        />
+                    ),
+                },
+                // Project Leader（带子列）
+                {
+                    title: 'project leader',
+                    key: 'projectLeader',
+                    align: 'center',
+                    children: projectLeaderChildren,
+                },
+                // Group Manager（带子列）
+                {
+                    title: 'group manager',
+                    key: 'groupManager',
+                    align: 'center',
+                    children: groupManagerChildren,
+                },
+                // Team Leader（带子列）
+                {
+                    title: 'team leader',
+                    key: 'teamLeader',
+                    align: 'center',
+                    children: teamLeaderChildren,
+                },
+            ];
 
             // CP角色列（带说明 - 问号图标）
             const cpRoleColumns = [
