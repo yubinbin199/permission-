@@ -1753,11 +1753,11 @@
                 displayColumns = [
                     ...baseColumns,
                     // 基础角色（包含CEO、Executive等 + 动态的project/group/team manager列）
-                    ...createGroupColumns('基础角色', baseRoleColumns, 'base'),
-                    ...createGroupColumns('CP角色', cpRoleColumns, 'cp'),
-                    ...createGroupColumns('IP角色', ipRoleColumns, 'ip'),
-                    ...createGroupColumns('翻译官', translatorRoleColumns, 'translator'),
-                    ...createGroupColumns('Expert角色', expertRoleColumns, 'expert'),
+                    ...createGroupColumns('Base Roles', baseRoleColumns, 'base'),
+                    ...createGroupColumns('CP Roles', cpRoleColumns, 'cp'),
+                    ...createGroupColumns('IP Roles', ipRoleColumns, 'ip'),
+                    ...createGroupColumns('Translator', translatorRoleColumns, 'translator'),
+                    ...createGroupColumns('Expert Roles', expertRoleColumns, 'expert'),
                 ];
             } else if (viewMode === 'cp') {
                 // CP视图：只显示CP角色列，不折叠
