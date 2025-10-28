@@ -1015,9 +1015,6 @@
             const [editingCell, setEditingCell] = React.useState(null);
             const [collapsedGroups, setCollapsedGroups] = React.useState({
                 base: true,
-                projectManager: true,
-                groupManager: true,
-                teamLeader: true,
                 cp: true,
                 ip: true,
                 translator: true,
@@ -1314,72 +1311,12 @@
                 },
             ];
 
-            // 基础角色列
-            const baseRoleColumns = [
-                { title: 'CEO', dataIndex: 'ceo', key: 'ceo', width: 80 },
-                { title: 'Executive', dataIndex: 'executive', key: 'executive', width: 100 },
-                { title: 'department Manager', dataIndex: 'deptManager', key: 'deptManager', width: 150 },
-                { title: 'Interviewer', dataIndex: 'interviewer', key: 'interviewer', width: 100 },
-                { title: 'Global HR', dataIndex: 'globalHR', key: 'globalHR', width: 100 },
-                { title: 'HR', dataIndex: 'hr', key: 'hr', width: 80 },
-            ].map(col => ({
-                ...col,
-                align: 'center',
-                className: 'role-column',
-                render: (value, record) => (
-                    <Switch 
-                        checked={value} 
-                        size="small"
-                        onChange={(checked) => handlePermissionChange(record.key, col.dataIndex, checked)}
-                    />
-                ),
-            }));
-
-            // 动态生成Project Manager列（根据员工的project生成）
-            const createProjectManagerColumns = (employee) => {
-                if (!employee.project || employee.project.length === 0) return [];
-                return employee.project.map(proj => ({
-                    title: proj,
-                    key: `projectManager_${proj}`,
-                    dataIndex: `projectManager_${proj}`,
-                    width: 100,
-                    align: 'center',
-                    className: 'role-column',
-                }));
-            };
-
-            // 动态生成Group Manager列（根据员工的group生成）
-            const createGroupManagerColumns = (employee) => {
-                if (!employee.group || employee.group.length === 0) return [];
-                return employee.group.map(grp => ({
-                    title: grp,
-                    key: `groupManager_${grp}`,
-                    dataIndex: `groupManager_${grp}`,
-                    width: 110,
-                    align: 'center',
-                    className: 'role-column',
-                }));
-            };
-
-            // 动态生成Team Leader列（根据员工的team生成）
-            const createTeamLeaderColumns = (employee) => {
-                if (!employee.team || employee.team.length === 0) return [];
-                return employee.team.map(tm => ({
-                    title: tm,
-                    key: `teamLeader_${tm}`,
-                    dataIndex: `teamLeader_${tm}`,
-                    width: 100,
-                    align: 'center',
-                    className: 'role-column',
-                }));
-            };
-
             // 收集所有唯一的project/group/team用于生成列
             const allProjects = [...new Set(employees.flatMap(e => e.project || []))].sort();
             const allGroups = [...new Set(employees.flatMap(e => e.group || []))].sort();
             const allTeams = [...new Set(employees.flatMap(e => e.team || []))].sort();
 
-            // 生成Project Manager列组
+            // 生成Project Manager列（每个project一列）
             const projectManagerColumns = allProjects.map(proj => ({
                 title: proj,
                 key: `projectManager_${proj}`,
@@ -1403,7 +1340,7 @@
                 },
             }));
 
-            // 生成Group Manager列组
+            // 生成Group Manager列（每个group一列）
             const groupManagerColumns = allGroups.map(grp => ({
                 title: grp,
                 key: `groupManager_${grp}`,
@@ -1427,7 +1364,7 @@
                 },
             }));
 
-            // 生成Team Leader列组
+            // 生成Team Leader列（每个team一列）
             const teamLeaderColumns = allTeams.map(tm => ({
                 title: tm,
                 key: `teamLeader_${tm}`,
@@ -1450,6 +1387,27 @@
                     );
                 },
             }));
+
+            // 基础角色列（包含固定角色 + 动态的project/group/team manager）
+            const baseRoleColumns = [
+                { title: 'CEO', dataIndex: 'ceo', key: 'ceo', width: 80 },
+                { title: 'Executive', dataIndex: 'executive', key: 'executive', width: 100 },
+                { title: 'department Manager', dataIndex: 'deptManager', key: 'deptManager', width: 150 },
+                { title: 'Interviewer', dataIndex: 'interviewer', key: 'interviewer', width: 100 },
+                { title: 'Global HR', dataIndex: 'globalHR', key: 'globalHR', width: 100 },
+                { title: 'HR', dataIndex: 'hr', key: 'hr', width: 80 },
+            ].map(col => ({
+                ...col,
+                align: 'center',
+                className: 'role-column',
+                render: (value, record) => (
+                    <Switch 
+                        checked={value} 
+                        size="small"
+                        onChange={(checked) => handlePermissionChange(record.key, col.dataIndex, checked)}
+                    />
+                ),
+            })).concat(projectManagerColumns, groupManagerColumns, teamLeaderColumns);
 
             // CP角色列（带说明 - 问号图标）
             const cpRoleColumns = [
@@ -1668,13 +1626,8 @@
             if (viewMode === 'all') {
                 displayColumns = [
                     ...baseColumns,
+                    // 基础角色（包含CEO、Executive等 + 动态的project/group/team manager列）
                     ...createGroupColumns('基础角色', baseRoleColumns, 'base'),
-                    // 新增Project Manager（每个project一列）
-                    ...(projectManagerColumns.length > 0 ? createGroupColumns('Project Manager', projectManagerColumns, 'projectManager') : []),
-                    // 新增Group Manager（每个group一列）
-                    ...(groupManagerColumns.length > 0 ? createGroupColumns('Group Manager', groupManagerColumns, 'groupManager') : []),
-                    // 新增Team Leader（每个team一列）
-                    ...(teamLeaderColumns.length > 0 ? createGroupColumns('Team Leader', teamLeaderColumns, 'teamLeader') : []),
                     ...createGroupColumns('CP角色', cpRoleColumns, 'cp'),
                     ...createGroupColumns('IP角色', ipRoleColumns, 'ip'),
                     ...createGroupColumns('翻译官', translatorRoleColumns, 'translator'),
