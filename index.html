@@ -1601,47 +1601,19 @@
                     return <span style={{ color: '#ccc' }}>-</span>;
                 }
                 
-                // CP员工：默认显示CP开关
+                // CP员工：只显示CP开关
                 if (employeeType === 'cp') {
                     const dataIndex = `cpExpert${type}`;
                     const value = record[dataIndex];
                     
                     return (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'center' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                <span style={{ fontSize: '12px', minWidth: '60px' }}>CP</span>
-                                <Switch 
-                                    checked={value} 
-                                    size="small"
-                                    onChange={(checked) => handlePermissionChange(record.key, dataIndex, checked)}
-                                />
-                            </div>
-                            <Dropdown
-                                trigger={['hover']}
-                                menu={{
-                                    items: expertDomains.filter(d => d.key !== 'cp').map(d => ({
-                                        key: d.key,
-                                        label: (
-                                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', minWidth: '120px' }}>
-                                                <span>{d.label}</span>
-                                                <Switch 
-                                                    checked={record[`${d.key}Expert${type}`]} 
-                                                    size="small"
-                                                    onChange={(checked, e) => {
-                                                        e.stopPropagation();
-                                                        handlePermissionChange(record.key, `${d.key}Expert${type}`, checked);
-                                                    }}
-                                                    onClick={(_, e) => e.stopPropagation()}
-                                                />
-                                            </div>
-                                        ),
-                                    })),
-                                }}
-                            >
-                                <Button size="small" type="link" style={{ fontSize: '12px', padding: 0 }}>
-                                    更多 <DownOutlined style={{ fontSize: '10px' }} />
-                                </Button>
-                            </Dropdown>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', justifyContent: 'center' }}>
+                            <span style={{ fontSize: '12px', minWidth: '60px' }}>CP</span>
+                            <Switch 
+                                checked={value} 
+                                size="small"
+                                onChange={(checked) => handlePermissionChange(record.key, dataIndex, checked)}
+                            />
                         </div>
                     );
                 }
