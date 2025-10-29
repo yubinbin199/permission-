@@ -1135,7 +1135,7 @@
                     fixed: 'left',
                     width: 240,
                     render: (text, record) => {
-                        const isEditable = record.tag === 'cp' || record.tag === 'ip';
+                        const isNameEditable = record.tag === 'cp' || record.tag === 'ip';
                         const isEditingNameNow = editingName === record.key;
                         const isEditingG123idNow = editingG123id === record.key;
                         
@@ -1163,7 +1163,7 @@
                                 <div className="employee-info">
                                     <div className="employee-name">
                                         <span style={{ color: '#666', marginRight: '4px' }}>【{record.position}】</span>
-                                        {isEditable && isEditingNameNow ? (
+                                        {isNameEditable && isEditingNameNow ? (
                                             <Input 
                                                 defaultValue={text}
                                                 size="small"
@@ -1183,8 +1183,8 @@
                                             />
                                         ) : (
                                             <span 
-                                                onClick={() => isEditable && setEditingName(record.key)}
-                                                style={{ cursor: isEditable ? 'pointer' : 'default' }}
+                                                onClick={() => isNameEditable && setEditingName(record.key)}
+                                                style={{ cursor: isNameEditable ? 'pointer' : 'default' }}
                                             >
                                                 {text}
                                             </span>
@@ -1194,7 +1194,7 @@
                                         {record.email}
                                     </div>
                                     <div style={{ fontSize: '12px', color: '#999', marginTop: '2px' }}>
-                                        {isEditable && isEditingG123idNow ? (
+                                        {isEditingG123idNow ? (
                                             <Input 
                                                 defaultValue={record.g123id}
                                                 size="small"
@@ -1215,8 +1215,8 @@
                                             />
                                         ) : (
                                             <span 
-                                                onClick={() => isEditable && setEditingG123id(record.key)}
-                                                style={{ cursor: isEditable ? 'pointer' : 'default' }}
+                                                onClick={() => setEditingG123id(record.key)}
+                                                style={{ cursor: 'pointer' }}
                                             >
                                                 {record.g123id}
                                             </span>
@@ -1234,25 +1234,6 @@
                     width: 280,
                     render: (_, record) => (
                         <div className="info-list">
-                            {/* CTW员工才显示部门 */}
-                            {record.tag === 'ctw' && (
-                                <div className="info-item">
-                                    <span className="info-label">department:</span>
-                                    <Select
-                                        size="small"
-                                        value={record.department}
-                                        style={{ width: 120 }}
-                                        onChange={(value) => handleInfoEdit(record.key, 'department', value)}
-                                    >
-                                        <Option value="tech">tech</Option>
-                                        <Option value="creative">creative</Option>
-                                        <Option value="marketing">marketing</Option>
-                                        <Option value="operation">operation</Option>
-                                        <Option value="management">management</Option>
-                                        <Option value="executive">executive</Option>
-                                    </Select>
-                                </div>
-                            )}
                             {/* CP员工才显示sub position */}
                             {record.tag === 'cp' && (
                                 <div className="info-item">
