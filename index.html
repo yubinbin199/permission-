@@ -1617,7 +1617,7 @@
                                 />
                             </div>
                             <Dropdown
-                                trigger={['click']}
+                                trigger={['hover']}
                                 menu={{
                                     items: expertDomains.filter(d => d.key !== 'cp').map(d => ({
                                         key: d.key,
@@ -1704,7 +1704,7 @@
                                 />
                             </div>
                             <Dropdown
-                                trigger={['click']}
+                                trigger={['hover']}
                                 menu={{
                                     items: expertDomains.filter(d => d.key !== matchedDomain.key).map(d => ({
                                         key: d.key,
@@ -1736,7 +1736,7 @@
                 // 没有匹配department的，只显示"更多"按钮
                 return (
                     <Dropdown
-                        trigger={['click']}
+                        trigger={['hover']}
                         menu={{
                             items: expertDomains.map(d => ({
                                 key: d.key,
