@@ -1269,43 +1269,26 @@
                                     </Select>
                                 </div>
                             )}
-                            {/* CTW员工才显示组和小队 */}
+                            {/* CTW员工才显示组 */}
                             {record.tag === 'ctw' && (
-                                <>
-                                    <div className="info-item">
-                                        <span className="info-label">group:</span>
-                                        <Select
-                                            mode="multiple"
-                                            size="small"
-                                            value={record.group}
-                                            style={{ width: 150 }}
-                                            onChange={(value) => handleInfoEdit(record.key, 'group', value)}
-                                            maxTagCount="responsive"
-                                            placeholder="选择组"
-                                        >
-                                            <Option value="cloud">cloud</Option>
-                                            <Option value="crafters">crafters</Option>
-                                            <Option value="performance">performance</Option>
-                                            <Option value="illust5">illust5</Option>
-                                            <Option value="onlinegame">onlinegame</Option>
-                                        </Select>
-                                    </div>
-                                    <div className="info-item">
-                                        <span className="info-label">team:</span>
-                                        <Select
-                                            mode="multiple"
-                                            size="small"
-                                            value={record.team}
-                                            style={{ width: 120 }}
-                                            onChange={(value) => handleInfoEdit(record.key, 'team', value)}
-                                            maxTagCount="responsive"
-                                            placeholder="选择小队"
-                                        >
-                                            <Option value="3AWE">3AWE</Option>
-                                            <Option value="AI">AI</Option>
-                                        </Select>
-                                    </div>
-                                </>
+                                <div className="info-item">
+                                    <span className="info-label">group:</span>
+                                    <Select
+                                        mode="multiple"
+                                        size="small"
+                                        value={record.group}
+                                        style={{ width: 150 }}
+                                        onChange={(value) => handleInfoEdit(record.key, 'group', value)}
+                                        maxTagCount="responsive"
+                                        placeholder="选择组"
+                                    >
+                                        <Option value="cloud">cloud</Option>
+                                        <Option value="crafters">crafters</Option>
+                                        <Option value="performance">performance</Option>
+                                        <Option value="illust5">illust5</Option>
+                                        <Option value="onlinegame">onlinegame</Option>
+                                    </Select>
+                                </div>
                             )}
                             <div className="info-item">
                                 <span className="info-label">project:</span>
@@ -1336,10 +1319,9 @@
                 },
             ];
 
-            // 收集所有唯一的project/group/team用于生成列
+            // 收集所有唯一的project/group用于生成列
             const allProjects = [...new Set(employees.flatMap(e => e.project || []))].sort();
             const allGroups = [...new Set(employees.flatMap(e => e.group || []))].sort();
-            const allTeams = [...new Set(employees.flatMap(e => e.team || []))].sort();
 
 
             // 基础角色列（包含固定角色 + 嵌套的project/group/team leader）
@@ -1410,39 +1392,6 @@
                                     return (
                                         <div key={grp} style={{ display: 'flex', alignItems: 'center', gap: '6px', width: '100%', justifyContent: 'center' }}>
                                             <span style={{ fontSize: '12px', minWidth: '60px', textAlign: 'left' }}>{grp}</span>
-                                            <Switch 
-                                                checked={value} 
-                                                size="small"
-                                                onChange={(checked) => handlePermissionChange(record.key, dataIndex, checked)}
-                                            />
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        );
-                    },
-                },
-                // Team Leader（单列，垂直显示员工的所有team开关）
-                {
-                    title: 'team leader',
-                    key: 'teamLeader',
-                    width: 150,
-                    align: 'center',
-                    className: 'role-column',
-                    render: (_, record) => {
-                        // 如果员工没有team，显示-
-                        if (!record.team || record.team.length === 0) {
-                            return <span style={{ color: '#ccc' }}>-</span>;
-                        }
-                        // 垂直显示员工的所有team开关
-                        return (
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'center' }}>
-                                {record.team.map(tm => {
-                                    const dataIndex = `teamLeader_${tm}`;
-                                    const value = record[dataIndex] || false;
-                                    return (
-                                        <div key={tm} style={{ display: 'flex', alignItems: 'center', gap: '6px', width: '100%', justifyContent: 'center' }}>
-                                            <span style={{ fontSize: '12px', minWidth: '60px', textAlign: 'left' }}>{tm}</span>
                                             <Switch 
                                                 checked={value} 
                                                 size="small"
