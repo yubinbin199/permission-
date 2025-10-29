@@ -2038,7 +2038,6 @@
                                     <Form.Item
                                         label="员工类型"
                                         name="employeeType"
-                                        rules={[{ required: true, message: '请选择员工类型' }]}
                                     >
                                         <Select placeholder="请选择">
                                             <Option value="cp">CP</Option>
@@ -2050,7 +2049,6 @@
                                 <Form.Item
                                     label="姓名"
                                     name="name"
-                                    rules={[{ required: true, message: '请输入姓名' }]}
                                     style={viewMode === 'all' ? {} : { gridColumn: '1' }}
                                 >
                                     <Input placeholder="请输入" />
@@ -2059,7 +2057,6 @@
                                 <Form.Item
                                     label="姓名（拼音）"
                                     name="nameEn"
-                                    rules={[{ required: true, message: '请输入姓名拼音' }]}
                                 >
                                     <Input placeholder="请输入" />
                                 </Form.Item>
@@ -2067,10 +2064,6 @@
                                 <Form.Item
                                     label="Email"
                                     name="email"
-                                    rules={[
-                                        { required: true, message: '请输入邮箱' },
-                                        { type: 'email', message: '请输入有效的邮箱地址' }
-                                    ]}
                                 >
                                     <Input placeholder="请输入/自动生成" suffix="@ctw.inc" />
                                 </Form.Item>
@@ -2078,7 +2071,6 @@
                                 <Form.Item
                                     label="G123 ID（仅支持一次编辑）"
                                     name="g123id"
-                                    rules={viewMode === 'all' ? [{ required: true, message: '请输入G123 ID' }] : []}
                                 >
                                     <Input placeholder="可通过 / 分隔输入多个id" />
                                 </Form.Item>
@@ -2086,7 +2078,6 @@
                                 <Form.Item
                                     label="职位"
                                     name="position"
-                                    rules={viewMode === 'all' ? [{ required: true, message: '请选择职位' }] : []}
                                 >
                                     <Select placeholder="职位">
                                         <Option value="be">be</Option>
