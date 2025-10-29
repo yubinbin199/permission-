@@ -1140,7 +1140,25 @@
                         const isEditingG123idNow = editingG123id === record.key;
                         
                         return (
-                            <div className="employee-cell">
+                            <div className="employee-cell" style={{ position: 'relative' }}>
+                                <Tag 
+                                    color={
+                                        record.tag === 'ctw' ? 'blue' : 
+                                        record.tag === 'cp' ? 'green' : 
+                                        'orange'
+                                    }
+                                    style={{ 
+                                        position: 'absolute',
+                                        top: 0,
+                                        left: 0,
+                                        fontSize: '10px',
+                                        padding: '0 4px',
+                                        lineHeight: '18px',
+                                        margin: 0
+                                    }}
+                                >
+                                    {record.tag.toUpperCase()}
+                                </Tag>
                                 <div className="employee-avatar">{record.avatar}</div>
                                 <div className="employee-info">
                                     <div className="employee-name">
@@ -1171,16 +1189,6 @@
                                                 {text}
                                             </span>
                                         )}
-                                        <Tag 
-                                            color={
-                                                record.tag === 'ctw' ? 'blue' : 
-                                                record.tag === 'cp' ? 'green' : 
-                                                'orange'
-                                            }
-                                            style={{ marginLeft: '8px', fontSize: '11px' }}
-                                        >
-                                            {record.tag.toUpperCase()}
-                                        </Tag>
                                     </div>
                                     <div style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>
                                         {record.email}
