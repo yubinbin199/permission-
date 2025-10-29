@@ -1143,10 +1143,8 @@
                             <div className="employee-cell">
                                 <div className="employee-avatar">{record.avatar}</div>
                                 <div className="employee-info">
-                                    <div style={{ fontSize: '11px', color: '#999', marginBottom: '2px' }}>
-                                        {record.position}
-                                    </div>
                                     <div className="employee-name">
+                                        <span style={{ color: '#666', marginRight: '4px' }}>【{record.position}】</span>
                                         {isEditable && isEditingNameNow ? (
                                             <Input 
                                                 defaultValue={text}
