@@ -1578,38 +1578,158 @@
                 ),
             }));
 
-            // Expert角色列
+            // Expert角色列 - 合并为Evaluator和Responder两列
+            const expertDomains = [
+                { key: 'tech', label: 'Tech', deptMatch: 'tech' },
+                { key: 'creative', label: 'Creative', deptMatch: 'creative' },
+                { key: 'marketing', label: 'Marketing', deptMatch: 'marketing' },
+                { key: 'operation', label: 'Operation', deptMatch: 'operation' },
+                { key: 'management', label: 'Management', deptMatch: 'management' },
+                { key: 'executive', label: 'Executive', deptMatch: 'executive' },
+                { key: 'cp', label: 'CP', deptMatch: null },
+                { key: 'cs', label: 'CS', deptMatch: null },
+                { key: 'i18n', label: 'i18n', deptMatch: null },
+            ];
+
+            const renderExpertColumn = (type, record) => {
+                const isExecutive = record.executive; // 是否开启了Executive角色
+                const dept = record.department;
+                
+                // 找到与department匹配的domain
+                const matchedDomain = expertDomains.find(d => d.deptMatch === dept);
+                
+                // 如果开启了Executive，显示"all"
+                if (isExecutive) {
+                    const allChecked = expertDomains.every(d => 
+                        record[`${d.key}Expert${type}`] === true
+                    );
+                    
+                    return (
+                        <Tooltip title={
+                            <div>
+                                {expertDomains.map(d => (
+                                    <div key={d.key} style={{ fontSize: '12px', padding: '2px 0' }}>
+                                        {d.label}
+                                    </div>
+                                ))}
+                            </div>
+                        }>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                                <span style={{ fontSize: '12px', color: '#666' }}>all</span>
+                                <Switch 
+                                    checked={allChecked} 
+                                    size="small"
+                                    onChange={(checked) => {
+                                        // 批量更新所有expert权限
+                                        const updates = {};
+                                        expertDomains.forEach(d => {
+                                            updates[`${d.key}Expert${type}`] = checked;
+                                        });
+                                        setEmployees(prev => prev.map(emp => 
+                                            emp.key === record.key ? { ...emp, ...updates } : emp
+                                        ));
+                                        message.success(`所有${type === 'Evaluator' ? '评估' : '响应'}权限已${checked ? '开启' : '关闭'}`);
+                                    }}
+                                />
+                            </div>
+                        </Tooltip>
+                    );
+                }
+                
+                // 如果有匹配的department，显示对应的开关
+                if (matchedDomain) {
+                    const dataIndex = `${matchedDomain.key}Expert${type}`;
+                    const value = record[dataIndex];
+                    
+                    return (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'center' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                <span style={{ fontSize: '12px', minWidth: '60px' }}>{matchedDomain.label}</span>
+                                <Switch 
+                                    checked={value} 
+                                    size="small"
+                                    onChange={(checked) => handlePermissionChange(record.key, dataIndex, checked)}
+                                />
+                            </div>
+                            <Dropdown
+                                trigger={['click']}
+                                menu={{
+                                    items: expertDomains.filter(d => d.key !== matchedDomain.key).map(d => ({
+                                        key: d.key,
+                                        label: (
+                                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', minWidth: '120px' }}>
+                                                <span>{d.label}</span>
+                                                <Switch 
+                                                    checked={record[`${d.key}Expert${type}`]} 
+                                                    size="small"
+                                                    onChange={(checked, e) => {
+                                                        e.stopPropagation();
+                                                        handlePermissionChange(record.key, `${d.key}Expert${type}`, checked);
+                                                    }}
+                                                    onClick={(_, e) => e.stopPropagation()}
+                                                />
+                                            </div>
+                                        ),
+                                    })),
+                                }}
+                            >
+                                <Button size="small" type="link" style={{ fontSize: '12px', padding: 0 }}>
+                                    更多 <DownOutlined style={{ fontSize: '10px' }} />
+                                </Button>
+                            </Dropdown>
+                        </div>
+                    );
+                }
+                
+                // 没有匹配department的，只显示"更多"按钮
+                return (
+                    <Dropdown
+                        trigger={['click']}
+                        menu={{
+                            items: expertDomains.map(d => ({
+                                key: d.key,
+                                label: (
+                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', minWidth: '120px' }}>
+                                        <span>{d.label}</span>
+                                        <Switch 
+                                            checked={record[`${d.key}Expert${type}`]} 
+                                            size="small"
+                                            onChange={(checked, e) => {
+                                                e.stopPropagation();
+                                                handlePermissionChange(record.key, `${d.key}Expert${type}`, checked);
+                                            }}
+                                            onClick={(_, e) => e.stopPropagation()}
+                                        />
+                                    </div>
+                                ),
+                            })),
+                        }}
+                    >
+                        <Button size="small" type="link">
+                            更多 <DownOutlined style={{ fontSize: '10px' }} />
+                        </Button>
+                    </Dropdown>
+                );
+            };
+
             const expertRoleColumns = [
-                { title: 'Tech Evaluator', dataIndex: 'techExpertEvaluator', key: 'techExpertEvaluator', width: 120 },
-                { title: 'Tech Responder', dataIndex: 'techExpertResponder', key: 'techExpertResponder', width: 120 },
-                { title: 'Creative Eval.', dataIndex: 'creativeExpertEvaluator', key: 'creativeExpertEvaluator', width: 120 },
-                { title: 'Creative Resp.', dataIndex: 'creativeExpertResponder', key: 'creativeExpertResponder', width: 120 },
-                { title: 'Marketing Eval.', dataIndex: 'marketingExpertEvaluator', key: 'marketingExpertEvaluator', width: 130 },
-                { title: 'Marketing Resp.', dataIndex: 'marketingExpertResponder', key: 'marketingExpertResponder', width: 130 },
-                { title: 'Operation Eval.', dataIndex: 'operationExpertEvaluator', key: 'operationExpertEvaluator', width: 130 },
-                { title: 'Operation Resp.', dataIndex: 'operationExpertResponder', key: 'operationExpertResponder', width: 130 },
-                { title: 'Management Eval.', dataIndex: 'managementExpertEvaluator', key: 'managementExpertEvaluator', width: 140 },
-                { title: 'Management Resp.', dataIndex: 'managementExpertResponder', key: 'managementExpertResponder', width: 140 },
-                { title: 'CP Eval.', dataIndex: 'cpExpertEvaluator', key: 'cpExpertEvaluator', width: 100 },
-                { title: 'CP Resp.', dataIndex: 'cpExpertResponder', key: 'cpExpertResponder', width: 100 },
-                { title: 'Executive Eval.', dataIndex: 'executiveExpertEvaluator', key: 'executiveExpertEvaluator', width: 130 },
-                { title: 'Executive Resp.', dataIndex: 'executiveExpertResponder', key: 'executiveExpertResponder', width: 130 },
-                { title: 'CS Eval.', dataIndex: 'csExpertEvaluator', key: 'csExpertEvaluator', width: 100 },
-                { title: 'CS Resp.', dataIndex: 'csExpertResponder', key: 'csExpertResponder', width: 100 },
-                { title: 'i18n Eval.', dataIndex: 'i18nExpertEvaluator', key: 'i18nExpertEvaluator', width: 100 },
-                { title: 'i18n Resp.', dataIndex: 'i18nExpertResponder', key: 'i18nExpertResponder', width: 100 },
-            ].map(col => ({
-                ...col,
-                align: 'center',
-                className: 'role-column',
-                render: (value, record) => (
-                    <Switch 
-                        checked={value} 
-                        size="small"
-                        onChange={(checked) => handlePermissionChange(record.key, col.dataIndex, checked)}
-                    />
-                ),
-            }));
+                {
+                    title: 'Evaluator',
+                    key: 'evaluator',
+                    width: 150,
+                    align: 'center',
+                    className: 'role-column',
+                    render: (_, record) => renderExpertColumn('Evaluator', record),
+                },
+                {
+                    title: 'Responder',
+                    key: 'responder',
+                    width: 150,
+                    align: 'center',
+                    className: 'role-column',
+                    render: (_, record) => renderExpertColumn('Responder', record),
+                },
+            ];
 
             // 创建分组列 - 修复折叠显示问题
             const createGroupColumns = (title, columns, groupKey) => {
